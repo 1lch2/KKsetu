@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>涩图提取工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      gap: 2.2rem;
+      padding: 10px;
+      padding-inline: 30px;
+      font-size: 1.5rem;
+      box-sizing: border-box;
+    }
+
+    /* Text Row */
+    .container p {
+      text-align: center;
+      padding-inline: 25px;
+      margin-top: 5px;
+    }
+
+    #explain {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: start;
+      gap: 0.5rem;
+    }
+
+    .note {
+      padding-inline-start: 28%;
+    }
+
+    /* Upload Button Row */
+    #file-selector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #file-selector input[type="file"] {
+      display: none;
+      /* Hide the input */
+    }
+
+    #file-selector label {
+      display: inline-block;
+      padding: 15px 20px;
+      font-size: 1rem;
+      color: white;
+      background-color: #1095a9;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Image Container Row */
+    #img-container {
+      width: 80%;
+      max-width: 600px;
+      height: 500px;
+      /* Adjusted height */
+      border: 2px solid #a5a5a5;
+      border-radius: 5px;
+      padding: 5px;
+
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: start;
+      justify-content: center;
+      align-items: start;
+      /* Add scrollbar */
+      overflow-y: auto;
+
+      border: #dddfe4 solid 1px;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.08);
+
+      color: #a5a5a5
+    }
+
+    #img-container img {
+      max-width: 45%;
+      /* Adjusted image size */
+      max-height: 100%;
+      height: auto;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        font-size: 1rem;
+        gap: 1.5rem;
+      }
+
+      #img-container img {
+        max-width: 45%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="explain">
+      <div class="note">
+        <h3>使用方法</h3>
+        <li>
+          下载群内的 txt 文件
+        </li>
+        <li>
+          点击上传
+        </li>
+        <li>
+          长按图片保存
+        </li>
+      </div>
+      <p style="font-weight: bold">
+        不要外传txt文件、转码后的图片或者这个脚本！！！
+      </p>
+    </div>
+    <div id="file-selector">
+      <label for="file">上传转码后的TXT</label>
+      <input type="file" id="file" accept=".txt" multiple />
+    </div>
+    <div id="img-container">图片会显示在这里</div>
+  </div>
+  <script>
+    (() => {
+      const imgContainer = document.getElementById("img-container");
+      const file = document.getElementById("file");
+
+      file.addEventListener("change", (e) => {
+        const files = e.target.files;
+        imgContainer.innerHTML = ""; // Clear previous images
+        for (let i = 0; i < files.length; i++) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.src = "data:image/png;base64," + e.target.result;
+            img.id = "img-display-" + i;
+            imgContainer.appendChild(img);
+          };
+          reader.readAsText(files[i]);
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>
