@@ -1,0 +1,59 @@
+.upload-section .instructions h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.upload-section .instructions ul {
+  list-style-position: inside;
+  padding-left: 0;
+  margin-bottom: 1.5rem;
+}
+
+.upload-section .instructions li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.upload-section .warning {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 1rem;
+  border-radius: 5px;
+  border-left: 5px solid var(--warning-color);
+  font-weight: bold;
+  margin-top: 1.5rem;
+}
+
+.file-selector {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.file-selector input[type="file"] {
+  display: none;
+}
+
+.file-selector label {
+  display: inline-block;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(
+    45deg,
+    var(--primary-color),
+    var(--success-color)
+  );
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.file-selector label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
