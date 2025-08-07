@@ -1,13 +1,7 @@
 .main-content {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
-
-@media (min-width: 992px) {
-  .main-content {
-    grid-template-columns: 400px 1fr;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .card {
