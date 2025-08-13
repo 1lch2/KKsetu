@@ -1,7 +1,9 @@
+import React from "react"
 import { Routes, Route, Navigate } from 'react-router-dom';
 import TabBar from './TabBar';
 import UploadPage from './UploadPage';
 import BrowsePage from './BrowsePage';
+import PixivMirror from './PixivMirror';
 import '../styles/MainContent.css';
 
 const MainContent = () => {
@@ -16,6 +18,7 @@ const MainContent = () => {
             element={<UploadPage />} 
           />
           <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/pixiv" element={<PixivMirror />} />
         </Routes>
       </div>
     </main>

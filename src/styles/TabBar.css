@@ -1,6 +1,6 @@
 .tab-bar {
   display: flex;
-  width: fit-content;
+  width: 100%;
   background-color: var(--card-background);
   border-radius: 8px 8px 0 0;
   box-shadow: var(--card-shadow);
