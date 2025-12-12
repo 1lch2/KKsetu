@@ -9,9 +9,12 @@ function webuiToNai(webuiPrompt: string) {
     .map((part) => {
       const trimmed = part.trim();
 
+      // Unescape brackets
+      const unescaped = trimmed.replace(/\\\(/g, '(').replace(/\\\)/g, ')');
+
       // 匹配 (word:weight) 或 (word) 格式
-      const match = trimmed.match(/^\((.+?)(?::(\d*\.?\d+))?\)$/);
-      if (!match) return trimmed; // 如果不匹配则原样返回
+      const match = unescaped.match(/^\((.+?)(?::(\d*\.?\d+))?\)$/);
+      if (!match) return unescaped; // 如果不匹配则原样返回
 
       let word = match[1];
       const weight = match[2] !== undefined ? parseFloat(match[2]) : 1.05;
@@ -40,9 +43,12 @@ function naiToWebui(naiPrompt: string) {
     .map((part) => {
       const trimmed = part.trim();
 
+      // Escape brackets
+      const escaped = trimmed.replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+
       // 匹配 weight::word:: 或 weight::word :: 格式（允许空格）
-      const match = trimmed.match(/^(\d*\.?\d+)::(.+?)::\s*$/);
-      if (!match) return trimmed; // 如果不匹配则原样返回
+      const match = escaped.match(/^(\d*\.?\d+)::(.+?)::\s*$/);
+      if (!match) return escaped; // 如果不匹配则原样返回
 
       const weight = parseFloat(match[1]);
       const word = match[2].trim(); // 去除可能的尾部空格
