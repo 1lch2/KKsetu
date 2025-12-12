@@ -1,0 +1,15 @@
+[build]
+  publish = "dist" 
+  functions = "netlify/functions"
+
+# 规则 1：API 转发
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# 规则 2：SPA 路由
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,15 @@
+module.exports = {
+  printWidth: 100,
+  tabWidth: 2,
+  useTabs: false,
+  // always add semicolons to the end of statements
+  semi: true,
+  // JSX is always double quotes, regardless of this option
+  singleQuote: true,
+  trailingComma: 'es5',
+  bracketSpacing: true,
+  jsxSingleQuote: true,
+  jsxBracketSameLine: false,
+  arrowParens: 'always',
+  proseWrap: 'always',
+};

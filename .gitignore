@@ -104,3 +104,9 @@ index-backup.html
 # Uncomment the following line if you want to ignore lock files
 package-lock.json
 yarn.lock
+
+# Local Netlify folder
+.netlify
+
+# Claude Code
+.claude
