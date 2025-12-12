@@ -6,17 +6,23 @@ const PromptConverter = () => {
   const [webuiText, setWebuiText] = useState('');
   const [naiText, setNaiText] = useState('');
 
-  const handleNai2WebuiClick = () => {
-    if (naiText.trim()) {
-      const converted = naiToWebui(naiText);
-      setWebuiText(converted);
+  const onWebuiPromptChange = (prompt: string) => {
+    setWebuiText(prompt);
+    if (prompt.trim()) {
+      const converted = webuiToNai(prompt);
+      setNaiText(converted);
+    } else {
+      setNaiText('');
     }
   };
 
-  const handleWebui2NaiClick = () => {
-    if (webuiText.trim()) {
-      const converted = webuiToNai(webuiText);
-      setNaiText(converted);
+  const onNaiPromptChange = (prompt: string) => {
+    setNaiText(prompt);
+    if (prompt.trim()) {
+      const converted = naiToWebui(prompt);
+      setWebuiText(converted);
+    } else {
+      setWebuiText('');
     }
   };
 
@@ -27,14 +33,6 @@ const PromptConverter = () => {
 
   return (
     <div className='prompt-converter'>
-      <div className='converter-buttons'>
-        <button className='convert-button webui2nai' onClick={handleWebui2NaiClick}>
-          WebUI 转 NAI 格式
-        </button>
-        <button className='convert-button nai2webui' onClick={handleNai2WebuiClick}>
-          NAI 转 WebUI 格式
-        </button>
-      </div>
       <div className='textareas-container'>
         <div className='textarea-wrapper webui'>
           <textarea
@@ -42,7 +40,7 @@ const PromptConverter = () => {
             id='webui'
             placeholder='输入 WebUI 格式提示词'
             value={webuiText}
-            onChange={(e) => setWebuiText(e.target.value)}
+            onChange={(e) => onWebuiPromptChange(e.target.value)}
           ></textarea>
         </div>
         <div className='textarea-wrapper nai'>
@@ -51,7 +49,7 @@ const PromptConverter = () => {
             id='nai'
             placeholder='输入 NAI 格式提示词'
             value={naiText}
-            onChange={(e) => setNaiText(e.target.value)}
+            onChange={(e) => onNaiPromptChange(e.target.value)}
           ></textarea>
         </div>
       </div>
