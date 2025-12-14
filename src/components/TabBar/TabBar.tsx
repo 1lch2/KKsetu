@@ -14,9 +14,6 @@ const TabBar: React.FC = () => {
       <NavLink to='/' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
         提取TXT
       </NavLink>
-      <NavLink to='/convert' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-        提示词格式转换
-      </NavLink>
     </div>
   );
 };
