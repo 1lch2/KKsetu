@@ -18,7 +18,12 @@ const ExtractPage = () => {
       reader.onload = (event) => {
         const result = event.target?.result as string;
         if (result) {
-          setImages((prevImages) => [...prevImages, result]);
+          // Backward compatibility
+          const imgSrc = result.startsWith('data:image')
+            ? result
+            : `data:image/png;base64,${result}`;
+
+          setImages((prevImages) => [...prevImages, imgSrc]);
         }
       };
       reader.readAsText(file);
