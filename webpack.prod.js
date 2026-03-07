@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { devtool } = require('./webpack.config');
 
 module.exports = {
   entry: './src/index.js',
@@ -68,4 +69,5 @@ module.exports = {
     },
   },
   mode: 'production',
+  devtool: 'source-map',
 };

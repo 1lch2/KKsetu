@@ -34,21 +34,22 @@ const transformToOriginal = (urlStr: string): string => {
   }
 };
 
-export default async (req: Request, context: Context) => {
+exports.handler = async (req: Request, context: Context) => {
   // 仅允许 GET 请求
-  if (req.method !== 'GET') {
-    return new Response('Method Not Allowed', { status: 405 });
-  }
+  //   if (req.method !== 'GET') {
+  //     return { statusCode: 405, body: 'Method Not Allowed' };
+  //   }
 
-  const url = new URL(req.url);
+  // 将 req 临时视为 any 或扩展类型
+  const url = new URL((req as any).rawUrl || req.url);
   const postId = url.searchParams.get('postId');
   const xsecToken = url.searchParams.get('xsecToken');
 
   if (!postId || !xsecToken) {
-    return new Response(
-      JSON.stringify({ error: 'Missing postId or xsecToken' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Missing postId or xsecToken' }),
+    };
   }
 
   const targetUrl = `https://www.xiaohongshu.com/explore/${postId}?xsec_token=${xsecToken}`;
@@ -69,14 +70,15 @@ export default async (req: Request, context: Context) => {
     const html = await response.text();
 
     // 提取 window.__INITIAL_STATE__
-    const stateRegex = /window\.__INITIAL_STATE__\s*=\s*({.*?});/s;
+    // 使用更鲁棒的正则：匹配到 </script> 或 ; 或行尾
+    const stateRegex = /window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?})(?:<\/script>|;|$)/;
     const match = html.match(stateRegex);
 
     if (!match) {
-      return new Response(
-        JSON.stringify({ error: 'Initial state not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: 'Initial state not found' }),
+      };
     }
 
     // 处理 JSON 中的 undefined 并解析
@@ -84,24 +86,24 @@ export default async (req: Request, context: Context) => {
     const noteData = state.note?.noteDetailMap?.[postId]?.note;
 
     if (!noteData?.imageList) {
-      return new Response(
-        JSON.stringify({ error: 'Image list not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: 'Image list not found' }),
+      };
     }
 
     const originalImages = noteData.imageList.map((img: any) =>
       transformToOriginal(img.urlDefault || img.url)
     );
 
-    return new Response(
-      JSON.stringify({ images: originalImages, title: noteData.title }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ images: originalImages, title: noteData.title }),
+    };
   } catch (err: any) {
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message }),
+    };
   }
 };
