@@ -1,0 +1,38 @@
+.xiaohongshu {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.xiaohongshu-input-wrapper {
+  margin-bottom: 2rem;
+}
+
+.xiaohongshu-input-wrapper label {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-color, #333);
+}
+
+.xiaohongshu-input-wrapper input[type="text"] {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 50px;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.xiaohongshu-input-wrapper input[type="text"]:focus {
+  border-color: var(--primary-color, #4a90e2);
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+}
+
+.xiaohongshu-input-wrapper input[type="text"]::placeholder {
+  color: #aaa;
+}

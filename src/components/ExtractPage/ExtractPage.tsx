@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import UploadSection from './__internal__/UploadSection/UploadSection';
-import ImageContainer from './__internal__/ImageContainer/ImageContainer';
+import ImageContainer from '../ImageContainer/ImageContainer';
 
 const ExtractPage = () => {
   const [images, setImages] = useState<string[]>([]);

@@ -5,6 +5,7 @@ import TabBar from '@components/TabBar/TabBar';
 // import UploadPage from '../UploadPage/UploadPage';
 // import ImageGridPage from '../ImageGridPage/ImageGridPage';
 import ExtractPage from '@components/ExtractPage/ExtractPage';
+import XiaohongshuExtractPage from '../XiaohongshuExtractPage/XiaohongshuExtractPage';
 
 import './MainContent.css';
 
@@ -20,6 +21,7 @@ const MainContent: React.FC = () => {
             {/* <Route path='/' element={<ImageGridPage />} />
             <Route path='/upload' element={<UploadPage />} /> */}
             <Route path='/' element={<ExtractPage />} />
+            <Route path='/xiaohongshu' element={<XiaohongshuExtractPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
         </div>

@@ -14,6 +14,12 @@ const TabBar: React.FC = () => {
       <NavLink to='/' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
         提取TXT
       </NavLink>
+      <NavLink
+        to='/xiaohongshu'
+        className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
+      >
+        提取小红书原图
+      </NavLink>
     </div>
   );
 };
