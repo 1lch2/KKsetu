@@ -6,14 +6,5 @@
   "pages_build_output_dir": "./dist",
   "observability": {
     "enabled": true
-  },
-  "vars": {},
-  "env": {
-    "production": {
-      "vars": {}
-    },
-    "staging": {
-      "vars": {}
-    }
   }
 }
