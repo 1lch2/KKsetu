@@ -18,7 +18,6 @@ export const getImageUrls = async (rawShareContent: string) => {
   }
 
   try {
-    // 2. 请求 Netlify Function (本地开发路径通常是 /.netlify/functions/xhs-proxy)
     const res = await fetch(
       `${BASE_URL}/api/fetch-xhs?postId=${info.postId}&xsecToken=${info.xsecToken}`
     );
