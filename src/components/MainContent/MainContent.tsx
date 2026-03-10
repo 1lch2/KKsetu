@@ -18,8 +18,6 @@ const MainContent: React.FC = () => {
         <TabBar />
         <div className='tab-content'>
           <Routes>
-            {/* <Route path='/' element={<ImageGridPage />} />
-            <Route path='/upload' element={<UploadPage />} /> */}
             <Route path='/' element={<ExtractPage />} />
             <Route path='/xiaohongshu' element={<XiaohongshuExtractPage />} />
             <Route path='*' element={<Navigate to='/' replace />} />
