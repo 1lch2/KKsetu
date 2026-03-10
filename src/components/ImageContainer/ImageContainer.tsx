@@ -94,6 +94,7 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ images }) => {
                 src={imageSrc}
                 alt={`Image ${index + 1}`}
                 id={`img-display-${index}`}
+                referrerPolicy='no-referrer'
                 onClick={handleImageClick}
               />
             ))}
