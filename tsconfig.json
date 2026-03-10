@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "rootDir": "./src",
@@ -26,5 +26,5 @@
     "sourceMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "functions/**/*"]
 }

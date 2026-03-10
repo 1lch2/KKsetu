@@ -108,5 +108,9 @@ yarn.lock
 # Local Netlify folder
 .netlify
 
+# Cloudflare Wrangler
+.wrangler/
+.dev.vars
+
 # Claude Code
 .claude

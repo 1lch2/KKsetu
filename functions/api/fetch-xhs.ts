@@ -1,6 +1,3 @@
-import type { PagesFunction } from '@cloudflare/workers-types';
-import { Response } from '@cloudflare/workers-types';
-
 const transformToOriginal = (urlStr: string): string => {
   try {
     const url = new URL(urlStr);
@@ -35,20 +32,17 @@ const transformToOriginal = (urlStr: string): string => {
   }
 };
 
-export const onRequestGet: PagesFunction = async (context) => {
+export const onRequestGet: PagesFunction = async (context: EventContext<Env, any, any>) => {
   const { request } = context;
   const url = new URL(request.url);
   const postId = url.searchParams.get('postId');
   const xsecToken = url.searchParams.get('xsecToken');
 
   if (!postId || !xsecToken) {
-    return new Response(
-      JSON.stringify({ error: 'Missing postId or xsecToken' }),
-      {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: 'Missing postId or xsecToken' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   const targetUrl = `https://www.xiaohongshu.com/explore/${postId}?xsec_token=${xsecToken}`;
@@ -73,13 +67,10 @@ export const onRequestGet: PagesFunction = async (context) => {
     const match = html.match(stateRegex);
 
     if (!match) {
-      return new Response(
-        JSON.stringify({ error: 'Initial state not found' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Initial state not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // 处理 JSON 中的 undefined 并解析
@@ -87,39 +78,30 @@ export const onRequestGet: PagesFunction = async (context) => {
     const noteData = state.note?.noteDetailMap?.[postId]?.note;
 
     if (!noteData?.imageList) {
-      return new Response(
-        JSON.stringify({ error: 'Image list not found' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Image list not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const originalImages = noteData.imageList.map((img: any) =>
       transformToOriginal(img.urlDefault || img.url)
     );
 
-    return new Response(
-      JSON.stringify({ images: originalImages, title: noteData.title }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ images: originalImages, title: noteData.title }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (err: any) {
-    return new Response(
-      JSON.stringify({ error: err.message }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 };
 
 // Also export onRequest to handle all methods if needed
-export const onRequest: PagesFunction = async (context) => {
+export const onRequest: PagesFunction = async (context: EventContext<Env, any, any>) => {
   const { request } = context;
 
   if (request.method === 'GET') {

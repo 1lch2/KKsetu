@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kksetu",
+  "compatibility_date": "2025-03-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {},
+  "env": {
+    "production": {
+      "vars": {}
+    },
+    "staging": {
+      "vars": {}
+    }
+  }
+}
