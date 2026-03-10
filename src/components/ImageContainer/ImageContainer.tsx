@@ -56,7 +56,7 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ images }) => {
           </style>
         </head>
         <body>
-          <img src="${imgSrc}" alt="Full size image" />
+          <img src="${imgSrc}" referrerPolicy="no-referrer" alt="Full size image" />
         </body>
 
       `);
