@@ -9,8 +9,47 @@ interface PostInfo {
   xsecToken: string;
 }
 
+/**
+ * 检查内容是否包含小红书短链接
+ */
+const isShortLink = (input: string): boolean => {
+  return /https?:\/\/xhslink\.com\/[a-zA-Z0-9\/]+/.test(input);
+};
+
+/**
+ * 解析短链接获取完整链接
+ */
+const parseShortLink = async (content: string): Promise<string | null> => {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/api/parse?content=${encodeURIComponent(content)}`
+    );
+    const data = await res.json();
+
+    if (data.fullLink) {
+      return data.fullLink;
+    }
+    return null;
+  } catch (err) {
+    console.error('解析短链接失败', err);
+    return null;
+  }
+};
+
 export const getImageUrls = async (rawShareContent: string) => {
-  const info = extractPostInfo(rawShareContent);
+  let contentToProcess = rawShareContent;
+
+  // 如果是短链接，先解析获取完整链接
+  if (isShortLink(rawShareContent)) {
+    const fullLink = await parseShortLink(rawShareContent);
+    if (!fullLink) {
+      console.log('短链接解析失败');
+      return [];
+    }
+    contentToProcess = fullLink;
+  }
+
+  const info = extractPostInfo(contentToProcess);
 
   if (!info) {
     console.log('无效链接');
