@@ -1,5 +1,5 @@
 .xiaohongshu {
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -16,7 +16,7 @@
   color: var(--text-color, #333);
 }
 
-.xiaohongshu-input-wrapper input[type="text"] {
+.xiaohongshu-input-wrapper input[type='text'] {
   width: 100%;
   padding: 14px 20px;
   font-size: 1rem;
@@ -28,11 +28,11 @@
   background-color: #fff;
 }
 
-.xiaohongshu-input-wrapper input[type="text"]:focus {
+.xiaohongshu-input-wrapper input[type='text']:focus {
   border-color: var(--primary-color, #4a90e2);
   box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
 }
 
-.xiaohongshu-input-wrapper input[type="text"]::placeholder {
+.xiaohongshu-input-wrapper input[type='text']::placeholder {
   color: #aaa;
 }

@@ -1,20 +1,14 @@
 import React, { useState } from 'react';
 import ImageContainer from '../ImageContainer/ImageContainer';
-import { getImageUrls } from '@/utils/xiaohongshuExtract';
+import { ussGetXhsImages } from '@/hooks/useGetXhsImages';
 import './XiaohongshuExtractPage.css';
 
 const XiaohongshuExtractPage = () => {
   const [shareContent, setShareContent] = useState('');
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const { data: imageUrls = [], isLoading, error } = ussGetXhsImages(shareContent);
 
-  const handleLinkChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawShareContent = e.target.value;
-    setShareContent(rawShareContent);
-
-    const images = await getImageUrls(rawShareContent);
-    if (images && images.length !== 0) {
-      setImageUrls(images);
-    }
+  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShareContent(e.target.value);
   };
 
   return (
@@ -28,6 +22,8 @@ const XiaohongshuExtractPage = () => {
           onChange={handleLinkChange}
           placeholder='粘贴小红书分享内容或链接...'
         />
+        {isLoading && <span className='loading'>加载中...</span>}
+        {error && <span className='error'>加载失败</span>}
       </div>
       <ImageContainer images={imageUrls} />
     </div>

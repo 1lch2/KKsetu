@@ -1,27 +1,25 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import TabBar from '@components/TabBar/TabBar';
-// import UploadPage from '../UploadPage/UploadPage';
-// import ImageGridPage from '../ImageGridPage/ImageGridPage';
 import ExtractPage from '@components/ExtractPage/ExtractPage';
 import XiaohongshuExtractPage from '../XiaohongshuExtractPage/XiaohongshuExtractPage';
+import TabPanel from '../TabPanel/TabPanel';
 
 import './MainContent.css';
 
 const queryClient = new QueryClient();
 
-const MainContent: React.FC = () => {
+const MainContent = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <main className='main-content'>
         <TabBar />
         <div className='tab-content'>
-          <Routes>
-            <Route path='/' element={<ExtractPage />} />
-            <Route path='/xiaohongshu' element={<XiaohongshuExtractPage />} />
-            <Route path='*' element={<Navigate to='/' replace />} />
-          </Routes>
+          <TabPanel path='/'>
+            <ExtractPage />
+          </TabPanel>
+          <TabPanel path='/xiaohongshu'>
+            <XiaohongshuExtractPage />
+          </TabPanel>
         </div>
       </main>
     </QueryClientProvider>
