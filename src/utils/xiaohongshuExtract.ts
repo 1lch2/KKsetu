@@ -21,9 +21,7 @@ const isShortLink = (input: string): boolean => {
  */
 const parseShortLink = async (content: string): Promise<string | null> => {
   try {
-    const res = await fetch(
-      `${BASE_URL}/api/parse?content=${encodeURIComponent(content)}`
-    );
+    const res = await fetch(`${BASE_URL}/api/parseXhsShort?content=${encodeURIComponent(content)}`);
     const data = await res.json();
 
     if (data.fullLink) {
@@ -58,7 +56,7 @@ export const getImageUrls = async (rawShareContent: string) => {
 
   try {
     const res = await fetch(
-      `${BASE_URL}/api/fetch-xhs?postId=${info.postId}&xsecToken=${info.xsecToken}`
+      `${BASE_URL}/api/fetchXhsImage?postId=${info.postId}&xsecToken=${info.xsecToken}`
     );
     const data = await res.json();
 

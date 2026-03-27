@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import ImageContainer from '../ImageContainer/ImageContainer';
-import { ussGetXhsImages } from '@/hooks/useGetXhsImages';
+import { useGetXhsImages } from '@/hooks/useGetXhsImages';
 import './XiaohongshuExtractPage.css';
 
 const XiaohongshuExtractPage = () => {
   const [shareContent, setShareContent] = useState('');
-  const { data: imageUrls = [], isLoading, error } = ussGetXhsImages(shareContent);
+  const { imageUrls = [], isLoading, error } = useGetXhsImages(shareContent);
 
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShareContent(e.target.value);

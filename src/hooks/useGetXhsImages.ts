@@ -5,17 +5,29 @@ interface UseXiaohongshuImagesOptions {
   enabled?: boolean;
 }
 
-export const ussGetXhsImages = (
+export const useGetXhsImages = (
   shareContent: string,
   options: UseXiaohongshuImagesOptions = {}
 ) => {
   const { enabled = true } = options;
 
-  return useQuery({
+  const {
+    data: imageUrls,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['xiaohongshu', shareContent],
     queryFn: () => getImageUrls(shareContent),
     enabled: enabled && shareContent.length > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
+
+  return {
+    imageUrls: processHeicFormat(imageUrls),
+    isLoading,
+    error,
+  };
 };
+
+const processHeicFormat = (imageUrls: string[]) => {};

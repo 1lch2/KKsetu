@@ -21,7 +21,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({ onFileChange }) => {
         <label htmlFor='file'>上传转码后的TXT</label>
         <input type='file' id='file' accept='.txt' multiple onChange={onFileChange} />
       </div>
-      <p className='warning'>不要外传txt文件、转码后的图片或者这个脚本！！！</p>
+      <p className='warning'>请不要不要外传txt和转码后的图片，小范围享受就可以了</p>
     </div>
   );
 };
