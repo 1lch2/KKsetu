@@ -9,8 +9,6 @@ const transformToOriginal = (urlStr: string): string => {
     // 1. 处理 xhscdn.com 域名
     if (hostname.includes('xhscdn.com')) {
       const segments = pathname.split('/').filter(Boolean);
-      // 匹配 Ruby 中的模式: [subdomain, domain, date(12), hash(32), *subdirs, id!...]
-      // segments[0] 是日期, segments[1] 是哈希
       const subdirsAndId = segments.slice(2);
       const lastSegment = subdirsAndId.pop() || '';
       const imageId = lastSegment.split('!')[0];

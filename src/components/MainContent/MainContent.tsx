@@ -15,10 +15,10 @@ const MainContent = () => {
         <TabBar />
         <div className='tab-content'>
           <TabPanel path='/'>
-            <ExtractPage />
-          </TabPanel>
-          <TabPanel path='/xiaohongshu'>
             <XiaohongshuExtractPage />
+          </TabPanel>
+          <TabPanel path='/extract'>
+            <ExtractPage />
           </TabPanel>
         </div>
       </main>

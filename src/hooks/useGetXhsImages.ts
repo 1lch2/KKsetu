@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getImageUrls } from '@/utils/xiaohongshuExtract';
+import { getXhsImageUrls } from '@/utils/xiaohongshuExtract';
 
 interface UseXiaohongshuImagesOptions {
   enabled?: boolean;
@@ -17,17 +17,17 @@ export const useGetXhsImages = (
     error,
   } = useQuery({
     queryKey: ['xiaohongshu', shareContent],
-    queryFn: () => getImageUrls(shareContent),
+    queryFn: async () => {
+      return await getXhsImageUrls(shareContent);
+    },
     enabled: enabled && shareContent.length > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
 
   return {
-    imageUrls: processHeicFormat(imageUrls),
+    imageUrls: imageUrls || [],
     isLoading,
     error,
   };
 };
-
-const processHeicFormat = (imageUrls: string[]) => {};
