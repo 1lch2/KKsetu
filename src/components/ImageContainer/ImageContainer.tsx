@@ -1,68 +1,23 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import FullscreenOverlay from './__internal__/FullscreenOverlay';
 import './ImageContainer.css';
 
 interface ImageContainerProps {
   images: string[];
+  isLoading?: boolean;
 }
 
-const ImageContainer: React.FC<ImageContainerProps> = ({ images }) => {
-  const isDesktop = () => {
-    // Check if the screen width is greater than typical mobile screen sizes
-    // or if the user agent indicates a desktop browser
-    const width = window.innerWidth;
-    const userAgent = navigator.userAgent;
+const ImageContainer: React.FC<ImageContainerProps> = ({ images, isLoading }) => {
+  const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
 
-    // Consider devices with width > 768px as desktop
-    // Also check user agent to be more precise
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      userAgent
-    );
-
-    return width > 768 && !isMobileDevice;
-  };
-
-  const handleImageClick = (event: React.MouseEvent<HTMLImageElement>) => {
-    // Only proceed if on desktop environment
-    if (!isDesktop()) {
-      return;
-    }
-
-    // Get the image source from the clicked image
+  const handleImageClick = useCallback((event: React.MouseEvent<HTMLImageElement>) => {
     const imgSrc = (event.target as HTMLImageElement).src;
+    setOverlaySrc(imgSrc);
+  }, []);
 
-    // Create a new window and write the image data to it
-    // This handles both base64 data URLs and regular image URLs
-    const newWindow = window.open('', '_blank');
-    if (newWindow) {
-      newWindow.document.write(`
-        <!DOCTYPE html>
-
-        <head>
-          <title>Image Viewer</title>
-          <style>
-            body {
-              margin: 0;
-              background: #000;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              min-height: 100vh;
-            }
-            img {
-              max-width: 100%;
-              max-height: 100vh;
-              object-fit: contain;
-            }
-          </style>
-        </head>
-        <body>
-          <img src="${imgSrc}" referrerPolicy="no-referrer" alt="Full size image" />
-        </body>
-
-      `);
-      newWindow.document.close();
-    }
-  };
+  const handleCloseOverlay = useCallback(() => {
+    setOverlaySrc(null);
+  }, []);
 
   const renderPlaceholder = () => (
     <div className='placeholder'>
@@ -86,7 +41,9 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ images }) => {
   return (
     <div className='card'>
       <div className='img-container'>
-        {images.length === 0
+        {isLoading
+          ? <div className='loading-state'>加载中...</div>
+          : images.length === 0
           ? renderPlaceholder()
           : images.map((imageSrc, index) => (
               <img
@@ -99,6 +56,7 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ images }) => {
               />
             ))}
       </div>
+      {overlaySrc && <FullscreenOverlay imageSrc={overlaySrc} onClose={handleCloseOverlay} />}
     </div>
   );
 };

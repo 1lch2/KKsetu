@@ -22,10 +22,9 @@ const XiaohongshuExtractPage = () => {
           onChange={handleLinkChange}
           placeholder='粘贴小红书分享内容或链接...'
         />
-        {isLoading && <span className='loading'>加载中...</span>}
         {error && <span className='error'>加载失败</span>}
       </div>
-      <ImageContainer images={imageUrls} />
+      <ImageContainer images={imageUrls} isLoading={isLoading} />
     </div>
   );
 };

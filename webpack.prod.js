@@ -14,7 +14,16 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
-        use: ['ts-loader'],
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              compilerOptions: {
+                ignoreDeprecations: '5.0',
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.(js|jsx)$/,
