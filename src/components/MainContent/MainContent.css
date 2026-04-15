@@ -6,7 +6,7 @@
 
 .card {
   background-color: var(--card-background);
-  border-radius: 8px;
+  border-radius: 0 0 8px 8px;
   box-shadow: var(--card-shadow);
   padding: 1.5rem;
 }

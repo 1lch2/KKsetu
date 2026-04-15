@@ -5,7 +5,6 @@
   border-radius: 8px 8px 0 0;
   box-shadow: var(--card-shadow);
   overflow: hidden;
-  margin-bottom: 2rem;
 }
 
 .tab-button {
@@ -33,7 +32,7 @@
 }
 
 .tab-button.active::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 0;
