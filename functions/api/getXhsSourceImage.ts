@@ -1,3 +1,5 @@
+import { convertMobileToPcUA } from '../_utils/convertUa';
+
 const FALLBACK_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
@@ -5,10 +7,13 @@ const isHeic = async (
   imageUrl: string,
   headers: Headers
 ): Promise<{ isHeic: boolean; data?: Blob; originalUrl?: string }> => {
+  // Remove Mobile User-agent field.
+  const userAgent = convertMobileToPcUA(headers.get('user-agent'));
+
   try {
     const response = await fetch(imageUrl, {
       headers: {
-        'User-Agent': headers.get('user-agent') || FALLBACK_UA,
+        'User-Agent': userAgent ?? FALLBACK_UA,
         Referer: 'https://www.xiaohongshu.com/',
       },
     });
@@ -45,12 +50,15 @@ const onRequestGet: PagesFunction = async (context: EventContext<Env, any, any>)
   try {
     const heicCheck = await isHeic(imageUrl, request.headers);
 
+    // Remove Mobile User-agent field.
+    const userAgent = convertMobileToPcUA(request.headers.get('user-agent'));
+
     if (heicCheck.isHeic && heicCheck.data) {
       // Return HEIC blob to client
       return new Response(heicCheck.data, {
         status: 200,
         headers: {
-          'User-Agent': request.headers.get('user-agent') || FALLBACK_UA,
+          'User-Agent': userAgent ?? FALLBACK_UA,
           'Content-Type': 'image/heic',
           'Cache-Control': 'public, max-age=86400',
           'Access-Control-Allow-Origin': '*',

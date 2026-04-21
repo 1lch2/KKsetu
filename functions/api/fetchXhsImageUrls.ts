@@ -1,5 +1,13 @@
+import { convertMobileToPcUA } from '../_utils/convertUa';
+
 const FALLBACK_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+const CORS_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Max-Age': '86400',
+};
 
 const transformToOriginal = (urlStr: string): string => {
   try {
@@ -33,6 +41,18 @@ const transformToOriginal = (urlStr: string): string => {
   }
 };
 
+export const onRequestOptions: PagesFunction = async () => {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Max-Age': '86400',
+      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    },
+  });
+};
+
 export const onRequestGet: PagesFunction = async (context: EventContext<Env, any, any>) => {
   const { request } = context;
   const url = new URL(request.url);
@@ -42,22 +62,22 @@ export const onRequestGet: PagesFunction = async (context: EventContext<Env, any
   if (!postId || !xsecToken) {
     return new Response(JSON.stringify({ error: 'Missing postId or xsecToken' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
     });
   }
 
   const targetUrl = `https://www.xiaohongshu.com/explore/${postId}?xsec_token=${xsecToken}`;
-
+  // Remove Mobile User-agent field.
+  const userAgent = convertMobileToPcUA(request.headers.get('user-agent'));
   try {
     const response = await fetch(targetUrl, {
       headers: {
-        'User-Agent': request.headers.get('user-agent') || FALLBACK_UA,
+        'User-Agent': userAgent ?? FALLBACK_UA,
         Referer: 'https://www.xiaohongshu.com/',
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
         Cookie: 'webId=anonymous',
         'Cache-Control': 'public, max-age=86400',
-        'Access-Control-Allow-Origin': '*',
       },
     });
 
@@ -72,7 +92,7 @@ export const onRequestGet: PagesFunction = async (context: EventContext<Env, any
     if (!match) {
       return new Response(JSON.stringify({ error: 'Initial state not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CORS_HEADERS,
       });
     }
 
@@ -83,7 +103,7 @@ export const onRequestGet: PagesFunction = async (context: EventContext<Env, any
     if (!noteData?.imageList) {
       return new Response(JSON.stringify({ error: 'Image list not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CORS_HEADERS,
       });
     }
 
@@ -93,12 +113,12 @@ export const onRequestGet: PagesFunction = async (context: EventContext<Env, any
 
     return new Response(JSON.stringify({ images: originalImages, title: noteData.title }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
     });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
     });
   }
 };
@@ -107,9 +127,16 @@ export const onRequestGet: PagesFunction = async (context: EventContext<Env, any
 export const onRequest: PagesFunction = async (context: EventContext<Env, any, any>) => {
   const { request } = context;
 
+  if (request.method === 'OPTIONS') {
+    return onRequestOptions(context);
+  }
+
   if (request.method === 'GET') {
     return onRequestGet(context);
   }
 
-  return new Response('Method Not Allowed', { status: 405 });
+  return new Response('Method Not Allowed', {
+    status: 405,
+    headers: CORS_HEADERS,
+  });
 };

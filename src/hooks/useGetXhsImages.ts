@@ -12,7 +12,7 @@ export const useGetXhsImages = (shareContent: string) => {
       return await getXhsImageUrls(shareContent);
     },
     enabled: shareContent.length > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 60 * 1000,
     retry: 1,
   });
 
