@@ -72,16 +72,47 @@ module.exports = {
       },
     }),
     new CopyPlugin({
-      patterns: [
-        { from: 'public/favicon.ico', to: 'favicon.ico' },
-      ],
+      patterns: [{ from: 'public/favicon.ico', to: 'favicon.ico' }],
     }),
   ],
   optimization: {
+    usedExports: true, // 标记未使用的导出
+    sideEffects: false, // 标记无副作用的模块
     splitChunks: {
       chunks: 'all',
+      cacheGroups: {
+        // 工具函数单独打包
+        utils: {
+          test: /[\\/]src[\\/]utils[\\/]/,
+          name: 'utils',
+          chunks: 'all',
+          enforce: true,
+        },
+        // 第三方库单独打包
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        // 公共组件单独打包
+        commons: {
+          name: 'commons',
+          minChunks: 2, // 至少被引用2次才拆分
+          chunks: 'async',
+          reuseExistingChunk: true,
+          priority: 5,
+        },
+      },
+    },
+    runtimeChunk: {
+      name: 'runtime', // 将 runtime 分离出来
     },
   },
+  performance: {
+    hints: 'warning', // 当入口点超过阈值时显示警告
+    maxEntrypointSize: 1024000, // 1MB
+    maxAssetSize: 1024000, // 1MB
+  },
   mode: 'production',
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
 };

@@ -75,4 +75,36 @@ module.exports = {
   },
   mode: 'development',
   devtool: 'eval-source-map',
+  optimization: {
+    usedExports: true,
+    sideEffects: false,
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        utils: {
+          test: /[\\/]src[\\/]utils[\\/]/,
+          name: 'utils',
+          chunks: 'all',
+          enforce: true,
+          priority: 20,
+        },
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 10,
+        },
+        commons: {
+          name: 'commons',
+          minChunks: 2,
+          chunks: 'async',
+          reuseExistingChunk: true,
+          priority: 5,
+        },
+      },
+    },
+    runtimeChunk: {
+      name: 'runtime',
+    },
+  },
 };

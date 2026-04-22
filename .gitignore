@@ -114,3 +114,9 @@ yarn.lock
 
 # Claude Code
 .claude
+
+# Kilo Code
+.kilo
+
+# TS buildinfo
+tsconfig.tsbuildinfo
