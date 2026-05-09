@@ -5,9 +5,10 @@ import './ImageContainer.css';
 interface ImageContainerProps {
   images: string[];
   isLoading?: boolean;
+  isError?: boolean;
 }
 
-const ImageContainer: React.FC<ImageContainerProps> = ({ images, isLoading }) => {
+const ImageContainer = (props: ImageContainerProps) => {
   const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
 
   const handleImageClick = useCallback((event: React.MouseEvent<HTMLImageElement>) => {
@@ -41,20 +42,24 @@ const ImageContainer: React.FC<ImageContainerProps> = ({ images, isLoading }) =>
   return (
     <div className='card'>
       <div className='img-container'>
-        {isLoading
-          ? <div className='loading-state'>加载中...</div>
-          : images.length === 0
-          ? renderPlaceholder()
-          : images.map((imageSrc, index) => (
-              <img
-                key={index}
-                src={imageSrc}
-                alt={`Image ${index + 1}`}
-                id={`img-display-${index}`}
-                referrerPolicy='no-referrer'
-                onClick={handleImageClick}
-              />
-            ))}
+        {props.isLoading ? (
+          <div className='loading-state'>加载中...</div>
+        ) : props.isError ? (
+          <div className='loading-state'>加载失败，请扫码登录小红书后再次尝试</div>
+        ) : props.images.length === 0 ? (
+          renderPlaceholder()
+        ) : (
+          props.images.map((imageSrc, index) => (
+            <img
+              key={index}
+              src={imageSrc}
+              alt={`Image ${index + 1}`}
+              id={`img-display-${index}`}
+              referrerPolicy='no-referrer'
+              onClick={handleImageClick}
+            />
+          ))
+        )}
       </div>
       {overlaySrc && <FullscreenOverlay imageSrc={overlaySrc} onClose={handleCloseOverlay} />}
     </div>

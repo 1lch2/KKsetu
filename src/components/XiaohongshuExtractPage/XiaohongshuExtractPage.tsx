@@ -11,6 +11,9 @@ const XiaohongshuExtractPage = () => {
     setShareContent(e.target.value);
   };
 
+  if (error) {
+    console.log('Load image error:', error);
+  }
   return (
     <div className='xiaohongshu card'>
       <div className='xiaohongshu-input-wrapper'>
@@ -22,9 +25,8 @@ const XiaohongshuExtractPage = () => {
           onChange={handleLinkChange}
           placeholder='粘贴小红书分享内容或链接...'
         />
-        {error && <span className='error'>加载失败</span>}
       </div>
-      <ImageContainer images={imageUrls} isLoading={isLoading} />
+      <ImageContainer images={imageUrls} isLoading={isLoading} isError={!!error} />
     </div>
   );
 };
