@@ -45,7 +45,7 @@ const ImageContainer = (props: ImageContainerProps) => {
         {props.isLoading ? (
           <div className='loading-state'>加载中...</div>
         ) : props.isError ? (
-          <div className='loading-state'>加载失败，请扫码登录小红书后再次尝试</div>
+          <div className='loading-state'>加载失败，请设置小红书cookie后再次尝试</div>
         ) : props.images.length === 0 ? (
           renderPlaceholder()
         ) : (

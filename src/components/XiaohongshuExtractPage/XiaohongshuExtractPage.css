@@ -36,3 +36,22 @@
 .xiaohongshu-input-wrapper input[type='text']::placeholder {
   color: #aaa;
 }
+
+.xhs-cookie-btn {
+  display: block;
+  width: fit-content;
+  margin: 1rem auto 0;
+  padding: 8px 20px;
+  font-size: 0.875rem;
+  color: var(--secondary-color, #6c757d);
+  background: transparent;
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.xhs-cookie-btn:hover {
+  color: var(--primary-color, #007bff);
+  border-color: var(--primary-color, #007bff);
+}

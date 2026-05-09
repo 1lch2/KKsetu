@@ -47,17 +47,16 @@ export const onRequestOptions: PagesFunction = async () => {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Max-Age': '86400',
-      'Access-Control-Allow-Headers': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
     },
   });
 };
 
-export const onRequestGet: PagesFunction = async (context: EventContext<Env, any, any>) => {
+export const onRequestPost: PagesFunction = async (context: EventContext<Env, any, any>) => {
   const { request } = context;
-  const url = new URL(request.url);
-  const postId = url.searchParams.get('postId');
-  const xsecToken = url.searchParams.get('xsecToken');
+  const body = await request.json<{ postId: string; xsecToken: string; cookie?: string }>();
+  const { postId, xsecToken, cookie } = body;
 
   if (!postId || !xsecToken) {
     return new Response(JSON.stringify({ error: 'Missing postId or xsecToken' }), {
@@ -76,7 +75,7 @@ export const onRequestGet: PagesFunction = async (context: EventContext<Env, any
         Referer: 'https://www.xiaohongshu.com/',
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-        Cookie: 'webId=anonymous',
+        Cookie: cookie || 'webId=anonymous',
         'Cache-Control': 'public, max-age=86400',
       },
     });
@@ -131,8 +130,8 @@ export const onRequest: PagesFunction = async (context: EventContext<Env, any, a
     return onRequestOptions(context);
   }
 
-  if (request.method === 'GET') {
-    return onRequestGet(context);
+  if (request.method === 'POST') {
+    return onRequestPost(context);
   }
 
   return new Response('Method Not Allowed', {

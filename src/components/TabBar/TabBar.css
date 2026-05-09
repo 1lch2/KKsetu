@@ -43,6 +43,8 @@
 
 .tab-content {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* 更新 main-content 布局以适应标签栏 */

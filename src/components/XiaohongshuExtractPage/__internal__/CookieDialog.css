@@ -1,0 +1,85 @@
+.xhs-cookie-dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 480px;
+  width: 90%;
+}
+
+.xhs-cookie-dialog[open] {
+  animation: dialog-fade-in 0.2s ease;
+}
+
+.xhs-cookie-dialog[open]::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  animation: backdrop-fade-in 0.2s ease;
+}
+
+@keyframes dialog-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes backdrop-fade-in {
+  from { background: rgba(0, 0, 0, 0); }
+  to { background: rgba(0, 0, 0, 0.5); }
+}
+
+.xhs-cookie-dialog__content {
+  padding: 1.5rem;
+}
+
+.xhs-cookie-dialog__content h3 {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: var(--font-color, #333);
+}
+
+.xhs-cookie-dialog__content textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 6px;
+  resize: vertical;
+  font-family: monospace;
+  box-sizing: border-box;
+}
+
+.xhs-cookie-dialog__content textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #007bff);
+}
+
+.xhs-cookie-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.xhs-cookie-dialog__actions button {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border-color, #dee2e6);
+  background: #fff;
+  color: var(--font-color, #333);
+  transition: all 0.2s ease;
+}
+
+.xhs-cookie-dialog__actions button:last-child {
+  background: var(--primary-color, #007bff);
+  color: #fff;
+  border-color: var(--primary-color, #007bff);
+}
+
+.xhs-cookie-dialog__actions button:last-child:hover {
+  opacity: 0.9;
+}

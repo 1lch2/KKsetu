@@ -118,9 +118,12 @@ export const getXhsImageUrls = async (rawShareContent: string) => {
   }
 
   try {
-    const res = await fetch(
-      `${BASE_URL}/api/fetchXhsImageUrls?postId=${info.postId}&xsecToken=${info.xsecToken}`
-    );
+    const cookie = localStorage.getItem('xhs_cookie') || '';
+    const res = await fetch(`${BASE_URL}/api/fetchXhsImageUrls`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId: info.postId, xsecToken: info.xsecToken, cookie }),
+    });
     const data = await res.json();
 
     if (data.images) {
