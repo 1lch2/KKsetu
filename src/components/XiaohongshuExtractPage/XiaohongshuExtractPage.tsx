@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ImageContainer from '../ImageContainer/ImageContainer';
-import CookieDialog, { type CookieDialogHandle } from './__internal__/CookieDialog';
+import CookieDialog from './__internal__/CookieDialog';
 import { useGetXhsImages } from '@/hooks/useGetXhsImages';
 import './XiaohongshuExtractPage.css';
 
@@ -9,7 +9,7 @@ const COOKIE_KEY = 'xhs_cookie';
 const XiaohongshuExtractPage = () => {
   const [shareContent, setShareContent] = useState('');
   const [cookieValue, setCookieValue] = useState('');
-  const dialogRef = useRef<CookieDialogHandle>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { imageUrls = [], isLoading, error } = useGetXhsImages(shareContent);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const XiaohongshuExtractPage = () => {
 
   const handleSaveCookie = () => {
     localStorage.setItem(COOKIE_KEY, cookieValue);
-    dialogRef.current?.close();
+    setIsDialogOpen(false);
   };
 
   if (error) {
@@ -37,13 +37,14 @@ const XiaohongshuExtractPage = () => {
         />
       </div>
       <ImageContainer images={imageUrls} isLoading={isLoading} isError={!!error} />
-      <button className='xhs-cookie-btn' onClick={() => dialogRef.current?.show()}>
+      <button className='xhs-cookie-btn' onClick={() => setIsDialogOpen(true)}>
         设置 Cookie
       </button>
       <CookieDialog
-        ref={dialogRef}
+        isOpen={isDialogOpen}
         cookieValue={cookieValue}
         onCookieChange={setCookieValue}
+        onClose={() => setIsDialogOpen(false)}
         onSave={handleSaveCookie}
       />
     </div>
