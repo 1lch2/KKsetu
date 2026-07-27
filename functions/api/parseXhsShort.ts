@@ -7,14 +7,14 @@ const parseShortLink = async (shortLinkShareContent: string): Promise<string> =>
 
   try {
     // Extract short link using regex - match http://xhslink.com/ or https://xhslink.com/ followed by path
-    const shortLinkRegex = /(https?:\/\/xhslink\.com\/[a-zA-Z0-9\/]+)/;
+    const shortLinkRegex = /https?:\/\/xhslink\.(?:com|cn)\/[a-zA-Z0-9\/]+/;
     const match = shortLinkShareContent.match(shortLinkRegex);
 
     if (!match) {
       throw new Error('No short link found in content');
     }
 
-    const shortUrl = match[1];
+    const [shortUrl] = match;
 
     // Use fetch with redirect follow to get the final URL
     const response = await fetch(shortUrl, {

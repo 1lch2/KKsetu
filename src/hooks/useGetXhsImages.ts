@@ -12,7 +12,7 @@ interface PostInfo {
  * 检查内容是否包含小红书短链接
  */
 const isShortLink = (input: string): boolean => {
-  return /https?:\/\/xhslink\.com\/[a-zA-Z0-9\/]+/.test(input);
+  return /https?:\/\/xhslink\.(?:com|cn)\/[a-zA-Z0-9\/]+/.test(input);
 };
 
 /**
