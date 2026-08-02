@@ -9,16 +9,27 @@ interface ImageContainerProps {
 }
 
 const ImageContainer = (props: ImageContainerProps) => {
-  const [overlaySrc, setOverlaySrc] = useState<string | null>(null);
+  const [overlayIndex, setOverlayIndex] = useState<number | null>(null);
 
-  const handleImageClick = useCallback((event: React.MouseEvent<HTMLImageElement>) => {
-    const imgSrc = (event.target as HTMLImageElement).src;
-    setOverlaySrc(imgSrc);
+  const handleImageClick = useCallback((index: number) => {
+    setOverlayIndex(index);
   }, []);
 
   const handleCloseOverlay = useCallback(() => {
-    setOverlaySrc(null);
+    setOverlayIndex(null);
   }, []);
+
+  const handlePreviousImage = useCallback(() => {
+    setOverlayIndex((currentIndex) =>
+      currentIndex === null ? null : Math.max(0, currentIndex - 1)
+    );
+  }, []);
+
+  const handleNextImage = useCallback(() => {
+    setOverlayIndex((currentIndex) =>
+      currentIndex === null ? null : Math.min(props.images.length - 1, currentIndex + 1)
+    );
+  }, [props.images.length]);
 
   const renderPlaceholder = () => (
     <div className='placeholder'>
@@ -56,12 +67,21 @@ const ImageContainer = (props: ImageContainerProps) => {
               alt={`Image ${index + 1}`}
               id={`img-display-${index}`}
               referrerPolicy='no-referrer'
-              onClick={handleImageClick}
+              onClick={() => handleImageClick(index)}
             />
           ))
         )}
       </div>
-      {overlaySrc && <FullscreenOverlay imageSrc={overlaySrc} onClose={handleCloseOverlay} />}
+      {overlayIndex !== null && props.images[overlayIndex] && (
+        <FullscreenOverlay
+          imageSrc={props.images[overlayIndex]}
+          currentIndex={overlayIndex}
+          totalImages={props.images.length}
+          onPrevious={handlePreviousImage}
+          onNext={handleNextImage}
+          onClose={handleCloseOverlay}
+        />
+      )}
     </div>
   );
 };
