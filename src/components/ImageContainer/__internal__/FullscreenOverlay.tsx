@@ -21,9 +21,13 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
+      } else if (event.key === 'ArrowLeft' && currentIndex > 0) {
+        onPrevious();
+      } else if (event.key === 'ArrowRight' && currentIndex < totalImages - 1) {
+        onNext();
       }
     },
-    [onClose]
+    [currentIndex, onClose, onNext, onPrevious, totalImages]
   );
 
   useEffect(() => {
