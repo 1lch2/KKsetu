@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import ImageContainer from '../ImageContainer/ImageContainer';
+import ImageContainer from '@components/ImageContainer/ImageContainer';
 import CookieDialog from './__internal__/CookieDialog';
 import { useGetXhsImages } from '@/hooks/useGetXhsImages';
 import './XiaohongshuExtractPage.css';
@@ -36,7 +36,11 @@ const XiaohongshuExtractPage = () => {
           placeholder='粘贴小红书分享内容或链接...'
         />
       </div>
-      <ImageContainer images={imageUrls} isLoading={isLoading} isError={!!error} />
+      <ImageContainer
+        images={imageUrls}
+        isLoading={isLoading}
+        errorMessage={error ? '加载失败，请设置小红书cookie后再次尝试' : undefined}
+      />
       <button className='xhs-cookie-btn' onClick={() => setIsDialogOpen(true)}>
         设置 Cookie
       </button>

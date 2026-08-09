@@ -1,0 +1,161 @@
+.image-obfuscation {
+  min-height: 100%;
+  text-align: center;
+}
+
+.image-obfuscation-intro {
+  max-width: 680px;
+  margin: 0 auto 1.5rem;
+}
+
+.image-obfuscation-intro h2 {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-color);
+  font-size: 1.5rem;
+}
+
+.image-obfuscation-intro p {
+  color: var(--secondary-color);
+}
+
+.image-obfuscation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.obfuscation-button {
+  min-width: 6rem;
+  padding: 10px 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--font-color);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.obfuscation-button--primary {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.obfuscation-button:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.obfuscation-button--primary:hover:not(:disabled) {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.obfuscation-button:focus-visible,
+.image-obfuscation-upload:focus-visible {
+  outline: 3px solid rgba(0, 123, 255, 0.2);
+  outline-offset: 2px;
+}
+
+.obfuscation-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.image-obfuscation-status,
+.image-obfuscation-error {
+  margin-top: 1rem;
+}
+
+.image-obfuscation-status {
+  color: var(--secondary-color);
+}
+
+.image-obfuscation-error {
+  color: var(--warning-color);
+}
+
+.image-obfuscation-upload {
+  margin-top: 1.5rem;
+  cursor: pointer;
+}
+
+.image-obfuscation-upload > .card {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.image-obfuscation-upload:hover .img-container,
+.image-obfuscation-upload.is-dragging .img-container {
+  border-color: var(--primary-color);
+  background-color: rgba(0, 123, 255, 0.04);
+}
+
+.image-obfuscation-upload.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.image-obfuscation-placeholder {
+  display: flex;
+  min-height: 316px;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary-color);
+}
+
+.image-obfuscation-placeholder svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+  color: var(--border-color);
+}
+
+.image-obfuscation-placeholder strong {
+  margin-bottom: 0.25rem;
+  color: var(--font-color);
+  font-size: 1.05rem;
+}
+
+.image-obfuscation-placeholder span {
+  font-size: 0.875rem;
+}
+
+.image-obfuscation-upload-hint {
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+  font-size: 0.875rem;
+}
+
+.image-obfuscation-file-input {
+  display: none;
+}
+
+.image-obfuscation-source {
+  margin-top: 1.25rem;
+  color: var(--secondary-color);
+  font-size: 0.75rem;
+}
+
+.image-obfuscation-source a {
+  color: var(--primary-color);
+}
+
+@media (max-width: 480px) {
+  .image-obfuscation {
+    padding: 1.25rem;
+  }
+
+  .obfuscation-button {
+    flex: 1 1 calc(50% - 0.75rem);
+  }
+}

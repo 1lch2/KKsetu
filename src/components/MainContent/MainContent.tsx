@@ -1,7 +1,8 @@
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import TabBar from '@components/TabBar/TabBar';
-import ExtractPage from '@components/ExtractPage/ExtractPage';
-import XiaohongshuExtractPage from '../XiaohongshuExtractPage/XiaohongshuExtractPage';
+import ExtractPage from '@/pages/ExtractPage/ExtractPage';
+import ImageObfuscationPage from '@/pages/ImageObfuscationPage/ImageObfuscationPage';
+import XiaohongshuExtractPage from '@/pages/XiaohongshuExtractPage/XiaohongshuExtractPage';
 import TabPanel from '../TabPanel/TabPanel';
 
 import './MainContent.css';
@@ -16,6 +17,9 @@ const MainContent = () => {
         <div className='tab-content'>
           <TabPanel path='/'>
             <XiaohongshuExtractPage />
+          </TabPanel>
+          <TabPanel path='/obfuscate'>
+            <ImageObfuscationPage />
           </TabPanel>
           <TabPanel path='/extract'>
             <ExtractPage />

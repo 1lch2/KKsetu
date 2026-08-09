@@ -5,7 +5,8 @@ import './ImageContainer.css';
 interface ImageContainerProps {
   images: string[];
   isLoading?: boolean;
-  isError?: boolean;
+  errorMessage?: string;
+  placeholder?: React.ReactNode;
 }
 
 const ImageContainer = (props: ImageContainerProps) => {
@@ -55,10 +56,10 @@ const ImageContainer = (props: ImageContainerProps) => {
       <div className='img-container'>
         {props.isLoading ? (
           <div className='loading-state'>加载中...</div>
-        ) : props.isError ? (
-          <div className='loading-state'>加载失败，请设置小红书cookie后再次尝试</div>
+        ) : props.errorMessage ? (
+          <div className='loading-state'>{props.errorMessage}</div>
         ) : props.images.length === 0 ? (
-          renderPlaceholder()
+          props.placeholder ?? renderPlaceholder()
         ) : (
           props.images.map((imageSrc, index) => (
             <img

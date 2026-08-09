@@ -8,6 +8,12 @@ const TabBar: React.FC = () => {
       <NavLink to='/' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
         提取小红书原图
       </NavLink>
+      <NavLink
+        to='/obfuscate'
+        className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
+      >
+        图片混淆
+      </NavLink>
       <NavLink to='/extract' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
         提取TXT
       </NavLink>
