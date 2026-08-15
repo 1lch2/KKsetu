@@ -227,7 +227,8 @@ const ImageObfuscationPage = () => {
       <div className='image-obfuscation-intro'>
         <h2>空间填充曲线图片混淆</h2>
         <p>
-          基于 Gilbert 空间填充曲线重新排列像素，在浏览器本地批量处理，并保持图片原始尺寸和格式。
+          基于 Gilbert
+          空间填充曲线重新排列像素，在浏览器本地批量处理。本站不会压缩为95%质量的JPG，保持了图片原始尺寸和格式，和原作者的小番茄混淆互相兼容。
         </p>
       </div>
 

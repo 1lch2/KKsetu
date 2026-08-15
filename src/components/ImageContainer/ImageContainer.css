@@ -64,6 +64,45 @@
   border: none;
 }
 
+.fullscreen-overlay__context-menu {
+  position: fixed;
+  box-sizing: border-box;
+  width: 180px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(24, 24, 24, 0.96);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+
+.fullscreen-overlay__context-menu button {
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.fullscreen-overlay__context-menu button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.fullscreen-overlay__context-menu button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.fullscreen-overlay__context-menu-error {
+  margin: 6px 10px 4px;
+  color: #ff9b9b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .img-container {
   width: 100%;
   min-height: 350px;
