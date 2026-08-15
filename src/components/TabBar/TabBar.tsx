@@ -14,9 +14,6 @@ const TabBar: React.FC = () => {
       >
         图片混淆
       </NavLink>
-      <NavLink to='/extract' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-        提取TXT
-      </NavLink>
     </div>
   );
 };
