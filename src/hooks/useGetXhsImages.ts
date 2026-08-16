@@ -1,12 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
+import heic2any from 'heic2any';
 
 import { BASE_URL } from '../utils/constants';
-import heic2any from 'heic2any';
 
 interface PostInfo {
   postId: string;
   xsecToken: string;
 }
+
+interface XhsImageResponse {
+  images: string[];
+}
+
+const isXhsImageResponse = (value: unknown): value is XhsImageResponse => {
+  if (typeof value !== 'object' || value === null || !('images' in value)) return false;
+  return Array.isArray(value.images) && value.images.every((image) => typeof image === 'string');
+};
+
+const getResponseError = (value: unknown): string | null => {
+  if (typeof value !== 'object' || value === null || !('error' in value)) return null;
+  return typeof value.error === 'string' ? value.error : null;
+};
 
 /**
  * 检查内容是否包含小红书短链接
@@ -91,7 +105,7 @@ const checkAndConvertHeic = async (imageUrl: string): Promise<string> => {
  *    解决浏览器直接请求小红书 CDN 的跨域问题，
  *    同时根据 content-type 检测 HEIC 格式并就地转换为 PNG。
  */
-export const getXhsImageUrls = async (rawShareContent: string) => {
+export const getXhsImageUrls = async (rawShareContent: string): Promise<string[]> => {
   let contentToProcess = rawShareContent;
 
   // 如果是短链接，先解析获取完整链接
@@ -111,21 +125,22 @@ export const getXhsImageUrls = async (rawShareContent: string) => {
     return [];
   }
 
-  try {
-    const cookie = localStorage.getItem('xhs_cookie') || '';
-    const res = await fetch(`${BASE_URL}/api/fetchXhsImageUrls`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ postId: info.postId, xsecToken: info.xsecToken, cookie }),
-    });
-    const data = await res.json();
+  const cookie = localStorage.getItem('xhs_cookie') || '';
+  const res = await fetch(`${BASE_URL}/api/fetchXhsImageUrls`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ postId: info.postId, xsecToken: info.xsecToken, cookie }),
+  });
+  const data: unknown = await res.json();
 
-    if (data.images.length !== 0) {
-      return Promise.all((data.images as string[]).map((url) => checkAndConvertHeic(url)));
-    }
-  } catch (err) {
-    console.error('请求失败', err);
+  if (!res.ok) {
+    throw new Error(getResponseError(data) || `请求失败（HTTP ${res.status}）`);
   }
+
+  if (!isXhsImageResponse(data)) throw new Error('小红书接口返回了无效的图片数据');
+  if (data.images.length === 0) return [];
+
+  return Promise.all(data.images.map((url) => checkAndConvertHeic(url)));
 };
 
 export const useGetXhsImages = (shareContent: string) => {
