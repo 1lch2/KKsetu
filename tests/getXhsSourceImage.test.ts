@@ -1,81 +1,57 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  getImageSourceConfig,
-  handleImageRequest,
-} from '../functions/api/getXhsSourceImage';
+import { handleXhsImageRequest } from '../functions/api/getXhsSourceImage';
 
 const createProxyRequest = (imageUrl: string): Request => {
   return new Request(
-    `https://example.com/api/getXhsSourceImage?url=${encodeURIComponent(imageUrl)}`
+    'https://example.com/api/getXhsSourceImage?url=' + encodeURIComponent(imageUrl)
   );
 };
 
 describe('getXhsSourceImage API', () => {
-  it('selects the Skland referer for its image CDN', () => {
-    const source = getImageSourceConfig(
-      'https://bbs.hycdn.cn/image/2025/09/12/3001230/example.webp'
-    );
-
-    expect(source?.referer).toBe('https://www.skland.com/');
-  });
-
-  it('keeps the Xiaohongshu referer for Xiaohongshu image CDNs', () => {
-    expect(getImageSourceConfig('https://sns-img-qc.xhscdn.com/example')?.referer).toBe(
-      'https://www.xiaohongshu.com/'
-    );
-    expect(getImageSourceConfig('https://ci.xiaohongshu.com/example')?.referer).toBe(
-      'https://www.xiaohongshu.com/'
-    );
-  });
-
-  it('rejects unsafe or unsupported proxy targets', () => {
-    expect(getImageSourceConfig('http://bbs.hycdn.cn/image/example.webp')).toBeNull();
-    expect(getImageSourceConfig('https://bbs.hycdn.cn.evil.example/image/example.webp')).toBeNull();
-    expect(getImageSourceConfig('https://example.com/image/example.webp')).toBeNull();
-    expect(getImageSourceConfig('not a url')).toBeNull();
-  });
-
-  it(
-    'fetches Skland images with the matching referer and returns a CORS-readable response',
-    async () => {
-      let receivedReferer = '';
-      let receivedRedirect: RequestRedirect | undefined;
-      const fetcher: typeof fetch = async (_input, init) => {
-        receivedReferer = new Headers(init?.headers).get('Referer') || '';
-        receivedRedirect = init?.redirect;
-        return new Response(new Uint8Array([1, 2, 3]), {
-          headers: { 'Content-Type': 'image/webp' },
-        });
-      };
-
-      const response = await handleImageRequest(
-        createProxyRequest('https://bbs.hycdn.cn/image/example.webp'),
-        fetcher
-      );
-
-      expect(response.status).toBe(200);
-      expect(receivedReferer).toBe('https://www.skland.com/');
-      expect(receivedRedirect).toBe('manual');
-      expect(response.headers.get('Content-Type')).toBe('image/webp');
-      expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
-      expect(new Uint8Array(await response.arrayBuffer())).toEqual(new Uint8Array([1, 2, 3]));
-    }
-  );
-
-  it('does not call the upstream fetcher for an unsupported host', async () => {
-    let called = false;
-    const fetcher: typeof fetch = async () => {
-      called = true;
-      return new Response();
+  it('fetches only Xiaohongshu images with the Xiaohongshu referer', async () => {
+    let receivedReferer = '';
+    let receivedRedirect: RequestRedirect | undefined;
+    const heifBytes = new Uint8Array([
+      0x00, 0x00, 0x00, 0x0c, 0x66, 0x74, 0x79, 0x70, 0x68, 0x65, 0x69, 0x63,
+    ]);
+    const fetcher: typeof fetch = async (_input, init) => {
+      receivedReferer = new Headers(init?.headers).get('Referer') || '';
+      receivedRedirect = init?.redirect;
+      return new Response(heifBytes, {
+        headers: { 'Content-Type': 'image/jpeg' },
+      });
     };
 
-    const response = await handleImageRequest(
-      createProxyRequest('https://example.com/image.webp'),
+    const response = await handleXhsImageRequest(
+      createProxyRequest('https://sns-img-qc.xhscdn.com/example'),
       fetcher
     );
 
-    expect(response.status).toBe(400);
-    expect(called).toBe(false);
+    expect(response.status).toBe(200);
+    expect(receivedReferer).toBe('https://www.xiaohongshu.com/');
+    expect(receivedRedirect).toBe('manual');
+    expect(response.headers.get('Content-Type')).toBe('image/heic');
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
+  });
+
+  it('rejects Skland and unsafe proxy targets before fetching upstream', async () => {
+    let callCount = 0;
+    const fetcher: typeof fetch = async () => {
+      callCount += 1;
+      return new Response();
+    };
+    const targets = [
+      'https://bbs.hycdn.cn/image/example.webp',
+      'https://example.com/image.webp',
+      'https://xhscdn.com.evil.example/image.webp',
+      'http://ci.xiaohongshu.com/image.webp',
+    ];
+
+    for (const target of targets) {
+      const response = await handleXhsImageRequest(createProxyRequest(target), fetcher);
+      expect(response.status).toBe(400);
+    }
+    expect(callCount).toBe(0);
   });
 });

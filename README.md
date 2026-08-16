@@ -91,11 +91,14 @@ npx wrangler pages deploy
   `window.__INITIAL_STATE__`，并返回原图 URL。请求体：`{ "postId": string, "xsecToken": string, "cookie"?: string }`
   响应：`{ "images": string[], "title": string }`
 
-- `GET /api/getXhsSourceImage?url=<图片 URL>`：代理图片二进制数据以绕过 CDN 的 CORS 限制。客户端通过响应的
-  `Content-Type` 判断图片是否为 HEIC/HEIF。
+- `GET /api/getXhsSourceImage?url=<图片 URL>`：仅代理小红书 CDN 图片以绕过 CORS
+  限制。客户端通过响应的 `Content-Type` 判断图片是否为 HEIC/HEIF。
 
 - `POST /api/fetchSklandImageUrls`：接收一个受支持的公开森空岛帖子 URL，并返回静态原图 URL。请求体：`{ "url": "https://www.skland.com/article?id=<id>" }`
   响应：`{ "articleId": string, "title"?: string, "images": string[] }`
+
+- `GET /api/getSklandSourceImage?url=<图片 URL>`：仅代理 `bbs.hycdn.cn`
+  森空岛图片，供复制和保存原图时绕过 CDN 的 CORS 限制。
 
 ## 小红书原图提取流程
 
@@ -112,7 +115,8 @@ Pages Function 会严格解析帖子 ID，并且只请求固定的数美和森�
 
 它先生成一个短期匿名设备 ID，再刷新请求令牌、为帖子请求签名，最后从 `imageListSlice`
 中读取静态图片。只有 `bbs.hycdn.cn`
-图片 URL 的查询参数会被移除。不支持登录、私密内容、视频提取或批量抓取。上游协议并未公开，可能随时发生变化。
+图片 URL 的查询参数会被移除；复制或保存图片时通过 `/api/getSklandSourceImage`
+读取原图。不支持登录、私密内容、视频提取或批量抓取。上游协议并未公开，可能随时发生变化。
 
 ## 故障排查
 

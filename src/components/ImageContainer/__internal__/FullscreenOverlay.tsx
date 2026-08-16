@@ -70,16 +70,11 @@ const isRemoteUrl = (imageSrc: string): boolean => {
   }
 };
 
-const isSklandImageUrl = (imageSrc: string): boolean => {
-  try {
-    return new URL(imageSrc).hostname.toLowerCase() === 'bbs.hycdn.cn';
-  } catch {
-    return false;
-  }
-};
-
-const fetchProxiedImage = async (imageSrc: string): Promise<Blob> => {
-  const proxyUrl = `${BASE_URL}/api/getXhsSourceImage?url=${encodeURIComponent(imageSrc)}`;
+const fetchProxiedImage = async (
+  imageSrc: string,
+  imageActionProxyEndpoint: string
+): Promise<Blob> => {
+  const proxyUrl = `${BASE_URL}${imageActionProxyEndpoint}?url=${encodeURIComponent(imageSrc)}`;
   const response = await fetch(proxyUrl);
   if (!response.ok) {
     throw new Error(`Image proxy request failed: ${response.status}`);
@@ -87,11 +82,13 @@ const fetchProxiedImage = async (imageSrc: string): Promise<Blob> => {
   return await response.blob();
 };
 
-const fetchImageBlob = async (imageSrc: string): Promise<Blob> => {
-  // 森空岛 CDN 不返回 Access-Control-Allow-Origin。图片标签可以显示，
-  // 但浏览器 fetch 无法读取响应，所以下载时直接交给同源服务端代理。
-  if (isSklandImageUrl(imageSrc)) {
-    return await fetchProxiedImage(imageSrc);
+const fetchImageBlob = async (
+  imageSrc: string,
+  imageActionProxyEndpoint?: string,
+  preferImageActionProxy?: boolean
+): Promise<Blob> => {
+  if (imageActionProxyEndpoint && preferImageActionProxy) {
+    return await fetchProxiedImage(imageSrc, imageActionProxyEndpoint);
   }
 
   try {
@@ -101,12 +98,11 @@ const fetchImageBlob = async (imageSrc: string): Promise<Blob> => {
     }
     return await response.blob();
   } catch (error) {
-    if (!isRemoteUrl(imageSrc)) {
+    if (!isRemoteUrl(imageSrc) || !imageActionProxyEndpoint) {
       throw error;
     }
 
-    // 其他受支持的远程图片仍优先直连；仅在 CORS 等浏览器限制出现时回退代理。
-    return await fetchProxiedImage(imageSrc);
+    return await fetchProxiedImage(imageSrc, imageActionProxyEndpoint);
   }
 };
 
@@ -156,6 +152,8 @@ interface FullscreenOverlayProps {
   onPrevious: () => void;
   onNext: () => void;
   onClose: () => void;
+  imageActionProxyEndpoint?: string;
+  preferImageActionProxy?: boolean;
 }
 
 const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
@@ -165,6 +163,8 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
   onPrevious,
   onNext,
   onClose,
+  imageActionProxyEndpoint,
+  preferImageActionProxy,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState<ContextMenuPosition | null>(
@@ -253,7 +253,11 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
     setActionError('');
 
     try {
-      const sourceBlob = await fetchImageBlob(imageSrc);
+      const sourceBlob = await fetchImageBlob(
+        imageSrc,
+        imageActionProxyEndpoint,
+        preferImageActionProxy
+      );
       const jpeg = await isJpeg(sourceBlob);
       const filename = getDownloadFilename(imageSrc, jpeg);
       // Downloads keep JPEG bytes and expose them consistently as image/jpeg.

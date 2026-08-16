@@ -7,6 +7,8 @@ interface ImageContainerProps {
   isLoading?: boolean;
   errorMessage?: string;
   placeholder?: React.ReactNode;
+  imageActionProxyEndpoint?: string;
+  preferImageActionProxy?: boolean;
 }
 
 const ImageContainer = (props: ImageContainerProps) => {
@@ -81,6 +83,8 @@ const ImageContainer = (props: ImageContainerProps) => {
           onPrevious={handlePreviousImage}
           onNext={handleNextImage}
           onClose={handleCloseOverlay}
+          imageActionProxyEndpoint={props.imageActionProxyEndpoint}
+          preferImageActionProxy={props.preferImageActionProxy}
         />
       )}
     </div>

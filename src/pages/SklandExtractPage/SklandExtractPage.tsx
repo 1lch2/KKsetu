@@ -51,6 +51,8 @@ const SklandExtractPage = () => {
         isLoading={isLoading}
         errorMessage={errorMessage}
         placeholder={placeholder}
+        imageActionProxyEndpoint='/api/getSklandSourceImage'
+        preferImageActionProxy
       />
     </div>
   );

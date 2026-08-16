@@ -40,6 +40,7 @@ const XiaohongshuExtractPage = () => {
         images={imageUrls}
         isLoading={isLoading}
         errorMessage={error ? '加载失败，请设置小红书cookie后再次尝试' : undefined}
+        imageActionProxyEndpoint='/api/getXhsSourceImage'
       />
       <button className='xhs-cookie-btn' onClick={() => setIsDialogOpen(true)}>
         设置 Cookie

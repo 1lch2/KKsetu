@@ -96,12 +96,15 @@ All endpoints are Cloudflare Pages Functions under `/api`.
   `{ "postId": string, "xsecToken": string, "cookie"?: string }` Response:
   `{ "images": string[], "title": string }`
 
-- `GET /api/getXhsSourceImage?url=<image url>` Proxies the image binary to bypass CDN CORS
-  restrictions. The response `Content-Type` is used client-side to detect HEIC/HEIF images.
+- `GET /api/getXhsSourceImage?url=<image url>` Proxies only Xiaohongshu CDN images to bypass CORS.
+  The response `Content-Type` is used client-side to detect HEIC/HEIF images.
 
 - `POST /api/fetchSklandImageUrls` Accepts one supported public Skland article URL and returns
   static original image URLs. Body: `{ "url": "https://www.skland.com/article?id=<id>" }` Response:
   `{ "articleId": string, "title"?: string, "images": string[] }`
+
+- `GET /api/getSklandSourceImage?url=<image url>` Proxies only `bbs.hycdn.cn` Skland images when
+  copying or saving originals must bypass the CDN's CORS restrictions.
 
 ## How Xiaohongshu Extraction Works
 
@@ -118,8 +121,9 @@ All endpoints are Cloudflare Pages Functions under `/api`.
 The Pages Function strictly parses the article ID and calls only fixed Shumei and Skland upstream
 hosts. It creates a short-lived anonymous device ID, refreshes a request token, signs the article
 request, then reads static images from `imageListSlice`. Query parameters are removed only from
-`bbs.hycdn.cn` image URLs. Login, private content, video extraction, and bulk crawling are not
-supported. The upstream protocol is not public and may change without notice.
+`bbs.hycdn.cn` image URLs; copying or saving uses `/api/getSklandSourceImage` to read the original.
+Login, private content, video extraction, and bulk crawling are not supported. The upstream protocol
+is not public and may change without notice.
 
 ## Troubleshooting
 
