@@ -1,0 +1,79 @@
+.skland {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.skland-form {
+  margin-bottom: 2rem;
+}
+
+.skland-form label {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--font-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.skland-input-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.skland-input-row input {
+  min-width: 0;
+  flex: 1;
+  padding: 14px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background-color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.skland-input-row input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+}
+
+.skland-input-row input::placeholder {
+  color: #aaa;
+}
+
+.skland-input-row button {
+  padding: 0 1.5rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  color: #fff;
+  background-color: var(--primary-color);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.skland-input-row button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.skland-validation-error {
+  margin-top: 0.5rem;
+  color: var(--warning-color);
+}
+
+.skland-title {
+  margin: -0.75rem 0 1rem;
+  color: var(--secondary-color);
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .skland-input-row {
+    flex-direction: column;
+  }
+
+  .skland-input-row button {
+    min-height: 48px;
+  }
+}

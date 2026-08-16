@@ -100,9 +100,7 @@ Desktop.ini
 # Backup files
 index-backup.html
 
-# Avoid committing package-lock.json or yarn.lock
-# Uncomment the following line if you want to ignore lock files
-package-lock.json
+# Keep npm dependencies reproducible; Yarn is not used by this project.
 yarn.lock
 
 # Local Netlify folder

@@ -70,7 +70,30 @@ const isRemoteUrl = (imageSrc: string): boolean => {
   }
 };
 
+const isSklandImageUrl = (imageSrc: string): boolean => {
+  try {
+    return new URL(imageSrc).hostname.toLowerCase() === 'bbs.hycdn.cn';
+  } catch {
+    return false;
+  }
+};
+
+const fetchProxiedImage = async (imageSrc: string): Promise<Blob> => {
+  const proxyUrl = `${BASE_URL}/api/getXhsSourceImage?url=${encodeURIComponent(imageSrc)}`;
+  const response = await fetch(proxyUrl);
+  if (!response.ok) {
+    throw new Error(`Image proxy request failed: ${response.status}`);
+  }
+  return await response.blob();
+};
+
 const fetchImageBlob = async (imageSrc: string): Promise<Blob> => {
+  // 森空岛 CDN 不返回 Access-Control-Allow-Origin。图片标签可以显示，
+  // 但浏览器 fetch 无法读取响应，所以下载时直接交给同源服务端代理。
+  if (isSklandImageUrl(imageSrc)) {
+    return await fetchProxiedImage(imageSrc);
+  }
+
   try {
     const response = await fetch(imageSrc, { referrerPolicy: 'no-referrer' });
     if (!response.ok) {
@@ -82,14 +105,8 @@ const fetchImageBlob = async (imageSrc: string): Promise<Blob> => {
       throw error;
     }
 
-    // A visible third-party image may still reject browser fetches because of
-    // CORS. Reuse the existing server-side image proxy only for remote URLs.
-    const proxyUrl = `${BASE_URL}/api/getXhsSourceImage?url=${encodeURIComponent(imageSrc)}`;
-    const response = await fetch(proxyUrl);
-    if (!response.ok) {
-      throw new Error(`Image proxy request failed: ${response.status}`);
-    }
-    return await response.blob();
+    // 其他受支持的远程图片仍优先直连；仅在 CORS 等浏览器限制出现时回退代理。
+    return await fetchProxiedImage(imageSrc);
   }
 };
 

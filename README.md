@@ -1,13 +1,14 @@
 # KKSetu
 
 A serverless image extraction tool built with React, TypeScript, and Cloudflare Pages Functions.
-Extract original-quality images from Xiaohongshu (小红书) posts, or read base64-encoded images from
-TXT files.
+Extract original-quality images from Xiaohongshu (小红书) and public Skland (森空岛) posts, or read
+base64-encoded images from TXT files.
 
 ## Features
 
 - **Xiaohongshu Extraction**: Extract original-quality images from Xiaohongshu posts via share
   content, full URLs, or `xhslink.com` short links
+- **Skland Extraction**: Extract static original images from public `skland.com` article URLs
 - **HEIC Conversion**: Automatically detects HEIC/HEIF images and converts them to PNG in the browser
 - **Cookie Support**: Optionally provide a Xiaohongshu cookie for posts that require authentication
 - **TXT Extraction**: Legacy tool that reads base64-encoded images from TXT files (runs entirely
@@ -24,6 +25,8 @@ TXT files.
 ## Routes
 
 - `/` - Xiaohongshu original image extraction (提取小红书原图)
+- `/skland` - Skland public-post original image extraction (提取森空岛原图)
+- `/obfuscate` - Local image obfuscation (图片混淆)
 - `/extract` - TXT file image extraction (提取TXT)
 
 ## Project Structure
@@ -37,18 +40,17 @@ src/
 │   ├── TabBar/TabBar.tsx                # Navigation tabs
 │   ├── TabPanel/TabPanel.tsx            # Renders children when the path matches
 │   ├── MainContent/MainContent.tsx      # Routes + QueryClientProvider
-│   ├── ExtractPage/                     # TXT image extraction
-│   │   ├── ExtractPage.tsx
-│   │   └── __internal__/UploadSection/UploadSection.tsx
-│   ├── XiaohongshuExtractPage/          # Xiaohongshu image extraction
-│   │   ├── XiaohongshuExtractPage.tsx
-│   │   └── __internal__/CookieDialog.tsx   # Cookie input dialog
 │   └── ImageContainer/                  # Shared image grid + fullscreen viewer
 │       ├── ImageContainer.tsx
 │       └── __internal__/FullscreenOverlay.tsx
 ├── hooks/
 │   ├── useGetXhsImages.ts               # Fetches & processes XHS images (TanStack Query)
-│   └── useProjectId.ts                  # Legacy project-id hook (currently unused)
+│   └── useGetSklandImages.ts            # Fetches Skland images through the Pages Function
+├── pages/
+│   ├── ExtractPage/                     # TXT image extraction
+│   ├── ImageObfuscationPage/            # Local image obfuscation
+│   ├── SklandExtractPage/               # Skland image extraction
+│   └── XiaohongshuExtractPage/          # Xiaohongshu image extraction
 ├── types/
 │   └── index.ts                         # TypeScript interfaces
 ├── utils/
@@ -59,11 +61,14 @@ functions/
 ├── types.d.ts
 ├── tsconfig.json
 ├── _utils/
-│   └── convertUa.ts                     # User-Agent helpers
+│   ├── convertUa.ts                     # User-Agent helpers
+│   ├── shumei.ts                        # Anonymous device ID protocol
+│   └── skland.ts                        # URL parsing, signing, and article extraction
 └── api/
     ├── parseXhsShort.ts                 # Resolve xhslink.com short links
     ├── fetchXhsImageUrls.ts             # Fetch the image URL list for a post
-    └── getXhsSourceImage.ts             # Proxy image binary (CORS bypass + HEIC detection)
+    ├── getXhsSourceImage.ts             # Proxy image binary (CORS bypass + HEIC detection)
+    └── fetchSklandImageUrls.ts           # Fetch public Skland post image URLs
 ```
 
 ## Setup Instructions
@@ -97,11 +102,27 @@ npm run dev
 npm run build
 ```
 
-### 4. Deploy to Cloudflare Pages
+### 4. Test
+
+```bash
+npm test -- --run
+```
+
+Live Skland tests are opt-in and call four fixed public posts. In PowerShell:
+
+```powershell
+$env:RUN_SKLAND_LIVE_TESTS='1'
+npm test -- --run tests/skland.live.test.ts
+```
+
+### 5. Deploy to Cloudflare Pages
 
 ```bash
 npx wrangler pages deploy
 ```
+
+Before exposing the endpoint publicly, configure a Cloudflare rate-limit rule for
+`/api/fetchSklandImageUrls` based on the preview environment's observed latency and normal usage.
 
 ## API Endpoints
 
@@ -121,6 +142,11 @@ All endpoints are Cloudflare Pages Functions under `/api`.
   Proxies the image binary to bypass CDN CORS restrictions. The response `Content-Type` is used
   client-side to detect HEIC/HEIF images.
 
+- `POST /api/fetchSklandImageUrls`
+  Accepts one supported public Skland article URL and returns static original image URLs.
+  Body: `{ "url": "https://www.skland.com/article?id=<id>" }`
+  Response: `{ "articleId": string, "title"?: string, "images": string[] }`
+
 ## How Xiaohongshu Extraction Works
 
 1. The pasted share content is parsed: `xhslink.com` short links are resolved via
@@ -130,6 +156,14 @@ All endpoints are Cloudflare Pages Functions under `/api`.
    `__INITIAL_STATE__`.
 3. Each image is loaded through `/api/getXhsSourceImage` to bypass the CDN's CORS policy. If the
    response is HEIC/HEIF, it is converted to PNG in the browser via `heic2any`.
+
+## How Skland Extraction Works
+
+The Pages Function strictly parses the article ID and calls only fixed Shumei and Skland upstream
+hosts. It creates a short-lived anonymous device ID, refreshes a request token, signs the article
+request, then reads static images from `imageListSlice`. Query parameters are removed only from
+`bbs.hycdn.cn` image URLs. Login, private content, video extraction, and bulk crawling are not
+supported. The upstream protocol is not public and may change without notice.
 
 ## Troubleshooting
 
@@ -168,3 +202,7 @@ If Cloudflare Pages deployment fails:
 ## License
 
 ISC
+
+The Skland protocol implementation uses
+[`mima-kit`](https://github.com/RSoraM/mima-kit) 0.1.3 under the MIT License. See
+[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).

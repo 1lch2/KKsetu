@@ -9,6 +9,12 @@ const TabBar: React.FC = () => {
         提取小红书原图
       </NavLink>
       <NavLink
+        to='/skland'
+        className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
+      >
+        提取森空岛原图
+      </NavLink>
+      <NavLink
         to='/obfuscate'
         className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
       >
