@@ -9,7 +9,8 @@ base64-encoded images from TXT files.
 - **Xiaohongshu Extraction**: Extract original-quality images from Xiaohongshu posts via share
   content, full URLs, or `xhslink.com` short links
 - **Skland Extraction**: Extract static original images from public `skland.com` article URLs
-- **HEIC Conversion**: Automatically detects HEIC/HEIF images and converts them to PNG in the browser
+- **HEIC Conversion**: Automatically detects HEIC/HEIF images and converts them to PNG in the
+  browser
 - **Cookie Support**: Optionally provide a Xiaohongshu cookie for posts that require authentication
 - **TXT Extraction**: Legacy tool that reads base64-encoded images from TXT files (runs entirely
   client-side)
@@ -28,48 +29,6 @@ base64-encoded images from TXT files.
 - `/skland` - Skland public-post original image extraction (提取森空岛原图)
 - `/obfuscate` - Local image obfuscation (图片混淆)
 - `/extract` - TXT file image extraction (提取TXT)
-
-## Project Structure
-
-```
-src/
-├── App.tsx                              # Root component: Router + Header + MainContent
-├── index.js                             # Entry point
-├── components/
-│   ├── Header/Header.tsx                # App header
-│   ├── TabBar/TabBar.tsx                # Navigation tabs
-│   ├── TabPanel/TabPanel.tsx            # Renders children when the path matches
-│   ├── MainContent/MainContent.tsx      # Routes + QueryClientProvider
-│   └── ImageContainer/                  # Shared image grid + fullscreen viewer
-│       ├── ImageContainer.tsx
-│       └── __internal__/FullscreenOverlay.tsx
-├── hooks/
-│   ├── useGetXhsImages.ts               # Fetches & processes XHS images (TanStack Query)
-│   └── useGetSklandImages.ts            # Fetches Skland images through the Pages Function
-├── pages/
-│   ├── ExtractPage/                     # TXT image extraction
-│   ├── ImageObfuscationPage/            # Local image obfuscation
-│   ├── SklandExtractPage/               # Skland image extraction
-│   └── XiaohongshuExtractPage/          # Xiaohongshu image extraction
-├── types/
-│   └── index.ts                         # TypeScript interfaces
-├── utils/
-│   └── constants.ts                     # BASE_URL configuration
-└── styles/                              # CSS files
-
-functions/
-├── types.d.ts
-├── tsconfig.json
-├── _utils/
-│   ├── convertUa.ts                     # User-Agent helpers
-│   ├── shumei.ts                        # Anonymous device ID protocol
-│   └── skland.ts                        # URL parsing, signing, and article extraction
-└── api/
-    ├── parseXhsShort.ts                 # Resolve xhslink.com short links
-    ├── fetchXhsImageUrls.ts             # Fetch the image URL list for a post
-    ├── getXhsSourceImage.ts             # Proxy image binary (CORS bypass + HEIC detection)
-    └── fetchSklandImageUrls.ts           # Fetch public Skland post image URLs
-```
 
 ## Setup Instructions
 
@@ -128,24 +87,20 @@ Before exposing the endpoint publicly, configure a Cloudflare rate-limit rule fo
 
 All endpoints are Cloudflare Pages Functions under `/api`.
 
-- `GET /api/parseXhsShort?content=<share text>`
-  Resolves an `xhslink.com` short link to the full `xiaohongshu.com` URL.
-  Response: `{ "fullLink": string }`
+- `GET /api/parseXhsShort?content=<share text>` Resolves an `xhslink.com` short link to the full
+  `xiaohongshu.com` URL. Response: `{ "fullLink": string }`
 
-- `POST /api/fetchXhsImageUrls`
-  Fetches the post page server-side, extracts `window.__INITIAL_STATE__`, and returns
-  original-quality image URLs.
-  Body: `{ "postId": string, "xsecToken": string, "cookie"?: string }`
-  Response: `{ "images": string[], "title": string }`
+- `POST /api/fetchXhsImageUrls` Fetches the post page server-side, extracts
+  `window.__INITIAL_STATE__`, and returns original-quality image URLs. Body:
+  `{ "postId": string, "xsecToken": string, "cookie"?: string }` Response:
+  `{ "images": string[], "title": string }`
 
-- `GET /api/getXhsSourceImage?url=<image url>`
-  Proxies the image binary to bypass CDN CORS restrictions. The response `Content-Type` is used
-  client-side to detect HEIC/HEIF images.
+- `GET /api/getXhsSourceImage?url=<image url>` Proxies the image binary to bypass CDN CORS
+  restrictions. The response `Content-Type` is used client-side to detect HEIC/HEIF images.
 
-- `POST /api/fetchSklandImageUrls`
-  Accepts one supported public Skland article URL and returns static original image URLs.
-  Body: `{ "url": "https://www.skland.com/article?id=<id>" }`
-  Response: `{ "articleId": string, "title"?: string, "images": string[] }`
+- `POST /api/fetchSklandImageUrls` Accepts one supported public Skland article URL and returns
+  static original image URLs. Body: `{ "url": "https://www.skland.com/article?id=<id>" }` Response:
+  `{ "articleId": string, "title"?: string, "images": string[] }`
 
 ## How Xiaohongshu Extraction Works
 
@@ -201,8 +156,9 @@ If Cloudflare Pages deployment fails:
 
 ## License
 
-ISC
+KKSetu's original code is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSE). You
+may use, modify, and distribute it only for noncommercial purposes. Commercial use is not permitted.
 
-The Skland protocol implementation uses
-[`mima-kit`](https://github.com/RSoraM/mima-kit) 0.1.3 under the MIT License. See
+Third-party components remain under their respective licenses. The Skland protocol implementation
+uses [`mima-kit`](https://github.com/RSoraM/mima-kit) 0.1.3 under the MIT License. See
 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
