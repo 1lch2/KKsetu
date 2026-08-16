@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 
 import ImageContainer from '@components/ImageContainer/ImageContainer';
 import { parseSklandArticleId, useGetSklandImages } from '@hooks/useGetSklandImages';
@@ -9,24 +9,21 @@ const SklandExtractPage = () => {
   const [input, setInput] = useState('');
   const [articleId, setArticleId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string>();
-  const { imageUrls, title, isLoading, errorMessage, refetch } = useGetSklandImages(articleId);
+  const { imageUrls, isLoading, errorMessage } = useGetSklandImages(articleId);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const parsedArticleId = parseSklandArticleId(input.trim());
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const parsedArticleId = parseSklandArticleId(value.trim());
+
+    setInput(value);
+    setArticleId(parsedArticleId);
 
     if (!parsedArticleId) {
-      setArticleId(null);
-      setValidationError('请输入受支持的森空岛帖子链接');
+      setValidationError(value.trim() ? '请输入受支持的森空岛帖子链接' : undefined);
       return;
     }
 
     setValidationError(undefined);
-    if (parsedArticleId === articleId) {
-      void refetch();
-      return;
-    }
-    setArticleId(parsedArticleId);
   };
 
   const placeholder = articleId ? (
@@ -37,24 +34,18 @@ const SklandExtractPage = () => {
 
   return (
     <div className='skland card'>
-      <form className='skland-form' onSubmit={handleSubmit}>
+      <div className='skland-input-wrapper'>
         <label htmlFor='skland-link'>森空岛帖子链接</label>
-        <div className='skland-input-row'>
-          <input
-            id='skland-link'
-            type='text'
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder='https://www.skland.com/article?id=...'
-            maxLength={2048}
-          />
-          <button type='submit' disabled={isLoading}>
-            {isLoading ? '提取中...' : '提取原图'}
-          </button>
-        </div>
+        <input
+          id='skland-link'
+          type='text'
+          value={input}
+          onChange={handleInputChange}
+          placeholder='https://www.skland.com/article?id=...'
+          maxLength={2048}
+        />
         {validationError ? <p className='skland-validation-error'>{validationError}</p> : null}
-      </form>
-      {title ? <p className='skland-title'>{title}</p> : null}
+      </div>
       <ImageContainer
         images={imageUrls}
         isLoading={isLoading}
