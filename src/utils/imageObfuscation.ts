@@ -1,5 +1,8 @@
 export type TransformDirection = 'encrypt' | 'decrypt';
 
+// Lossy encoding changes shuffled colors before the inverse mapping can restore them.
+const LOSSLESS_WEBP_QUALITY = 1;
+
 interface CurveBuffer {
   positions: Int32Array;
   nextIndex: number;
@@ -133,7 +136,7 @@ const encodeCanvas = (canvas: HTMLCanvasElement, mimeType: string) => {
       }
 
       resolve(blob);
-    }, mimeType);
+    }, mimeType, mimeType === 'image/webp' ? LOSSLESS_WEBP_QUALITY : undefined);
   });
 };
 
