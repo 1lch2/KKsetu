@@ -225,10 +225,9 @@ const ImageObfuscationPage = () => {
   return (
     <div className='image-obfuscation card'>
       <div className='image-obfuscation-intro'>
-        <h2>空间填充曲线图片混淆</h2>
+        <h2>图片混淆</h2>
         <p>
-          基于 Gilbert
-          空间填充曲线重新排列像素，在浏览器本地批量处理。本站不会压缩为95%质量的JPG，保持了图片原始尺寸和格式，和原作者的小番茄混淆互相兼容。
+          在浏览器本地批量混淆或还原图片，保留原始尺寸与格式，兼容小番茄混淆。
         </p>
       </div>
 
@@ -290,7 +289,7 @@ const ImageObfuscationPage = () => {
       >
         {images.length > 0 && (
           <p className='image-obfuscation-upload-hint'>
-            当前共 {images.length} 张图片，点击空白处、拖入图片或按 Ctrl+V 可替换当前批次
+            已选择 {images.length} 张图片 · 点击空白处、拖入或粘贴图片可替换
           </p>
         )}
         <ImageContainer
@@ -308,11 +307,11 @@ const ImageObfuscationPage = () => {
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
-                  d='M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25z'
+                  d='M12 16V3m-5 5 5-5 5 5M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4'
                 />
               </svg>
-              <strong>点击、拖拽或按 Ctrl+V 粘贴图片</strong>
-              <span>支持同时上传多张 PNG、JPG/JPEG 或 WebP 图片</span>
+              <strong>点击上传或拖入图片</strong>
+              <span>PNG、JPG / JPEG、WebP · Ctrl+V 粘贴</span>
             </div>
           }
         />
@@ -328,9 +327,9 @@ const ImageObfuscationPage = () => {
       />
 
       <p className='image-obfuscation-source'>
-        空间填充曲线混淆代码移植自{' '}
+        混淆算法来源：{' '}
         <a href='https://xfqtphx.netlify.app/' target='_blank' rel='noreferrer'>
-          https://xfqtphx.netlify.app/
+          小番茄混淆
         </a>
       </p>
     </div>

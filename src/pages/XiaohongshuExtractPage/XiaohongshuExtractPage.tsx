@@ -27,7 +27,12 @@ const XiaohongshuExtractPage = () => {
   return (
     <div className='xiaohongshu card'>
       <div className='xiaohongshu-input-wrapper'>
-        <label htmlFor='xiaohongshu-link'>小红书分享链接</label>
+        <div className='xiaohongshu-input-label'>
+          <label htmlFor='xiaohongshu-link'>小红书分享链接</label>
+          <button className='xhs-cookie-btn' onClick={() => setIsDialogOpen(true)}>
+            设置 Cookie
+          </button>
+        </div>
         <input
           id='xiaohongshu-link'
           type='text'
@@ -42,9 +47,6 @@ const XiaohongshuExtractPage = () => {
         errorMessage={error ? '加载失败，请设置小红书cookie后再次尝试' : undefined}
         imageActionProxyEndpoint='/api/getXhsSourceImage'
       />
-      <button className='xhs-cookie-btn' onClick={() => setIsDialogOpen(true)}>
-        设置 Cookie
-      </button>
       <CookieDialog
         isOpen={isDialogOpen}
         cookieValue={cookieValue}

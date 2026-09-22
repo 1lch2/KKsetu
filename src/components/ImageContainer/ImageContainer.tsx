@@ -54,7 +54,7 @@ const ImageContainer = (props: ImageContainerProps) => {
   );
 
   return (
-    <div className='card'>
+    <div className='card image-preview'>
       <div className='img-container'>
         {props.isLoading ? (
           <div className='loading-state'>加载中...</div>

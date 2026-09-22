@@ -1,76 +1,67 @@
-.image-obfuscation {
-  min-height: 100%;
-  text-align: center;
-}
-
 .image-obfuscation-intro {
-  max-width: 680px;
-  margin: 0 auto 1.5rem;
+  margin-bottom: 20px;
 }
 
 .image-obfuscation-intro h2 {
-  display: inline-block;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--primary-color);
-  font-size: 1.5rem;
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
 }
 
 .image-obfuscation-intro p {
+  max-width: 520px;
   color: var(--secondary-color);
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .image-obfuscation-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
 .obfuscation-button {
-  min-width: 6rem;
-  padding: 10px 24px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: #fff;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--surface-muted);
   color: var(--font-color);
-  font: inherit;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.5;
+  white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .obfuscation-button--primary {
-  border-color: var(--primary-color);
   background: var(--primary-color);
   color: #fff;
 }
 
 .obfuscation-button:hover:not(:disabled) {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  background: #e8e8ed;
 }
 
 .obfuscation-button--primary:hover:not(:disabled) {
-  color: #fff;
-  opacity: 0.9;
-}
-
-.obfuscation-button:focus-visible,
-.image-obfuscation-upload:focus-visible {
-  outline: 3px solid rgba(0, 123, 255, 0.2);
-  outline-offset: 2px;
+  background: var(--primary-hover);
 }
 
 .obfuscation-button:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.4;
 }
 
 .image-obfuscation-status,
 .image-obfuscation-error {
-  margin-top: 1rem;
+  margin-top: 16px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .image-obfuscation-status {
@@ -82,20 +73,22 @@
 }
 
 .image-obfuscation-upload {
-  margin-top: 1.5rem;
+  margin-top: 20px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-.image-obfuscation-upload > .card {
-  padding: 0;
-  background: transparent;
-  box-shadow: none;
+.image-obfuscation-upload .img-container {
+  border: 1px dashed #c7c7cc;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
 .image-obfuscation-upload:hover .img-container,
 .image-obfuscation-upload.is-dragging .img-container {
   border-color: var(--primary-color);
-  background-color: rgba(0, 123, 255, 0.04);
+  background-color: var(--primary-soft);
 }
 
 .image-obfuscation-upload.is-disabled {
@@ -105,35 +98,40 @@
 
 .image-obfuscation-placeholder {
   display: flex;
-  min-height: 316px;
+  min-height: 318px;
+  padding: 16px;
   grid-column: 1 / -1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: var(--secondary-color);
+  text-align: center;
 }
 
 .image-obfuscation-placeholder svg {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 1rem;
-  color: var(--border-color);
+  width: 44px;
+  height: 44px;
+  margin-bottom: 20px;
+  color: #86868b;
 }
 
 .image-obfuscation-placeholder strong {
-  margin-bottom: 0.25rem;
+  margin-bottom: 8px;
   color: var(--font-color);
-  font-size: 1.05rem;
+  font-size: 17px;
+  font-weight: 500;
 }
 
 .image-obfuscation-placeholder span {
-  font-size: 0.875rem;
+  max-width: 320px;
+  font-size: 12px;
+  line-height: 1.7;
 }
 
 .image-obfuscation-upload-hint {
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
   color: var(--secondary-color);
-  font-size: 0.875rem;
+  font-size: 12px;
 }
 
 .image-obfuscation-file-input {
@@ -141,21 +139,53 @@
 }
 
 .image-obfuscation-source {
-  margin-top: 1.25rem;
+  margin-top: 16px;
   color: var(--secondary-color);
-  font-size: 0.75rem;
+  font-size: 11px;
 }
 
 .image-obfuscation-source a {
-  color: var(--primary-color);
+  color: inherit;
+  text-underline-offset: 3px;
 }
 
-@media (max-width: 480px) {
+@media (min-width: 900px) {
   .image-obfuscation {
-    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .image-obfuscation-intro,
+  .image-obfuscation-upload,
+  .image-obfuscation-source,
+  .image-obfuscation-status,
+  .image-obfuscation-error {
+    margin: 0;
+  }
+
+  .image-obfuscation-upload,
+  .image-obfuscation-source,
+  .image-obfuscation-status,
+  .image-obfuscation-error {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .image-obfuscation-placeholder {
+    min-height: 400px;
+    padding: 12px;
+  }
+
+  .image-obfuscation-placeholder strong {
+    font-size: 16px;
   }
 
   .obfuscation-button {
-    flex: 1 1 calc(50% - 0.75rem);
+    flex: 1;
+    padding: 10px 14px;
   }
 }

@@ -4,15 +4,15 @@ import './TabBar.css';
 
 const TabBar: React.FC = () => {
   return (
-    <div className='tab-bar'>
+    <nav className='tab-bar' aria-label='图片工具'>
       <NavLink to='/' className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-        提取小红书原图
+        小红书原图
       </NavLink>
       <NavLink
         to='/skland'
         className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
       >
-        提取森空岛原图
+        森空岛原图
       </NavLink>
       <NavLink
         to='/obfuscate'
@@ -20,7 +20,7 @@ const TabBar: React.FC = () => {
       >
         图片混淆
       </NavLink>
-    </div>
+    </nav>
   );
 };
 

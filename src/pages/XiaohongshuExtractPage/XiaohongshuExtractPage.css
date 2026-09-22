@@ -1,57 +1,75 @@
 .xiaohongshu {
   max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
 }
 
 .xiaohongshu-input-wrapper {
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
 }
 
-.xiaohongshu-input-wrapper label {
-  display: block;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: var(--text-color, #333);
+.xiaohongshu-input-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 32px;
+  margin-bottom: 8px;
+}
+
+.xiaohongshu-input-label label {
+  color: var(--font-color);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .xiaohongshu-input-wrapper input[type='text'] {
   width: 100%;
-  padding: 14px 20px;
-  font-size: 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--font-color);
+  font-size: 16px;
   outline: none;
-  transition: all 0.3s ease;
-  box-sizing: border-box;
-  background-color: #fff;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .xiaohongshu-input-wrapper input[type='text']:focus {
-  border-color: var(--primary-color, #4a90e2);
-  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
 .xiaohongshu-input-wrapper input[type='text']::placeholder {
-  color: #aaa;
+  color: var(--secondary-color);
 }
 
 .xhs-cookie-btn {
-  display: block;
-  width: fit-content;
-  margin: 1rem auto 0;
-  padding: 8px 20px;
-  font-size: 0.875rem;
-  color: var(--secondary-color, #6c757d);
+  flex-shrink: 0;
+  min-height: 32px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 4px;
   background: transparent;
-  border: 1px solid var(--border-color, #dee2e6);
-  border-radius: 6px;
+  color: var(--primary-color);
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .xhs-cookie-btn:hover {
-  color: var(--primary-color, #007bff);
-  border-color: var(--primary-color, #007bff);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .xiaohongshu-input-label {
+    gap: 8px;
+  }
+
+  .xhs-cookie-btn {
+    min-height: 44px;
+  }
 }

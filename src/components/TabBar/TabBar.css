@@ -1,70 +1,67 @@
 .tab-bar {
+  --tab-primary-color: #007bff;
   display: flex;
+  align-self: center;
   width: 100%;
-  background-color: var(--card-background);
-  border-radius: 8px 8px 0 0;
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
+  max-width: 440px;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #e8e8ed;
 }
 
 .tab-button {
+  display: flex;
   flex: 1;
-  padding: 1rem 2rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration-line: none;
-  font-size: 1rem;
-  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 6px;
   color: var(--secondary-color);
-  transition: all 0.3s ease;
-  position: relative;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .tab-button:hover {
   background-color: rgba(0, 123, 255, 0.1);
-  color: var(--primary-color);
+  color: var(--tab-primary-color);
 }
 
 .tab-button.active {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: var(--primary-color);
+  background: var(--tab-primary-color);
+  color: var(--card-background);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .tab-content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-/* 更新 main-content 布局以适应标签栏 */
-.main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  min-width: 0;
+  padding-top: 20px;
 }
 
 .main-content-with-tabs {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 24px;
 }
 
 @media (max-width: 600px) {
   .tab-button {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
-    white-space: nowrap;
+    min-height: 44px;
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .tab-content {
+    padding-top: 20px;
   }
 }
 
@@ -74,10 +71,11 @@
   }
 
   .main-content-with-tabs > *:first-child {
-    flex: 0 0 400px;
+    flex: 0 0 340px;
   }
 
   .main-content-with-tabs > *:last-child {
     flex: 1;
+    min-width: 0;
   }
 }

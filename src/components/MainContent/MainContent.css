@@ -1,14 +1,19 @@
 .main-content {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  flex: 1;
-  min-height: 0;
+  min-width: 0;
 }
 
 .card {
+  padding: 24px;
+  border-radius: 12px;
   background-color: var(--card-background);
-  border-radius: 0 0 8px 8px;
   box-shadow: var(--card-shadow);
-  padding: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 20px;
+    border-radius: 10px;
+  }
 }
