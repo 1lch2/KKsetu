@@ -1,39 +1,4 @@
-const FALLBACK_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-
-const parseShortLink = async (shortLinkShareContent: string): Promise<string> => {
-  // example short link share content:
-  // ◻️ http://xhslink.com/o/5vEkRNV4w87 复制后打开【小红书】查看笔记！
-
-  try {
-    // Extract short link using regex - match http://xhslink.com/ or https://xhslink.com/ followed by path
-    const shortLinkRegex = /https?:\/\/xhslink\.(?:com|cn)\/[a-zA-Z0-9\/]+/;
-    const match = shortLinkShareContent.match(shortLinkRegex);
-
-    if (!match) {
-      throw new Error('No short link found in content');
-    }
-
-    const [shortUrl] = match;
-
-    // Use fetch with redirect follow to get the final URL
-    const response = await fetch(shortUrl, {
-      method: 'GET',
-      redirect: 'follow',
-      headers: {
-        'User-Agent': FALLBACK_UA,
-        Referer: 'https://www.xiaohongshu.com/',
-        Accept:
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-      },
-    });
-
-    // Return the final URL after all redirects
-    return response.url;
-  } catch (error: any) {
-    throw new Error(`Failed to parse short link: ${error.message}`);
-  }
-};
+import { parseXhsShortLink } from '../_utils/xhsShortLink';
 
 const onRequestGet: PagesFunction = async (context: EventContext<Env, any, any>) => {
   const { request } = context;
@@ -48,13 +13,14 @@ const onRequestGet: PagesFunction = async (context: EventContext<Env, any, any>)
   }
 
   try {
-    const fullLink = await parseShortLink(content);
+    const fullLink = await parseXhsShortLink(content);
     return new Response(JSON.stringify({ fullLink }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: `Failed to parse short link: ${message}` }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
