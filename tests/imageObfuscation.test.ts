@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { transformImage } from '../src/utils/imageObfuscation';
+import { transformImage, type TransformDirection } from '../src/utils/imageObfuscation';
 
 class MockImage {
   naturalWidth = 2;
@@ -21,13 +21,18 @@ class MockImageData {
   }
 }
 
-const transformWithCanvasMock = async (mimeType: string) => {
+const transformWithCanvasMock = async (
+  direction: TransformDirection,
+  outputType: string | null = 'image/png'
+) => {
   let encoding: { mimeType: string | undefined; quality: number | undefined } | undefined;
   const sourceData = new MockImageData(2, 2);
+  sourceData.data.set([255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 10, 20, 30, 255]);
+  const originalPixels = sourceData.data.slice();
   const context = {
     drawImage: vi.fn(),
     getImageData: vi.fn(() => sourceData),
-    putImageData: vi.fn(),
+    putImageData: vi.fn((data: MockImageData) => sourceData.data.set(data.data)),
   };
   const canvas = {
     width: 0,
@@ -39,7 +44,7 @@ const transformWithCanvasMock = async (mimeType: string) => {
       quality?: number
     ) => {
       encoding = { mimeType: requestedMimeType, quality };
-      callback(new Blob([], { type: requestedMimeType }));
+      callback(outputType === null ? null : new Blob([], { type: outputType }));
     },
   };
 
@@ -49,8 +54,10 @@ const transformWithCanvasMock = async (mimeType: string) => {
     createElement: vi.fn(() => canvas),
   });
 
-  await transformImage('blob:source', 'encrypt', mimeType);
-  return encoding;
+  const result = await transformImage('blob:source', direction);
+  const transformedPixels = sourceData.data.slice();
+  await transformImage('blob:result', direction === 'encrypt' ? 'decrypt' : 'encrypt');
+  return { encoding, result, originalPixels, transformedPixels, restoredPixels: sourceData.data };
 };
 
 afterEach(() => {
@@ -58,17 +65,28 @@ afterEach(() => {
 });
 
 describe('transformImage', () => {
-  it('requests lossless WebP encoding so the inverse transform keeps exact pixels', async () => {
-    await expect(transformWithCanvasMock('image/webp')).resolves.toEqual({
-      mimeType: 'image/webp',
-      quality: 1,
-    });
+  it.each(['encrypt', 'decrypt'] as const)(
+    'exports %s as PNG and preserves inverse pixel mapping',
+    async (direction) => {
+      const { encoding, result, originalPixels, transformedPixels, restoredPixels } =
+        await transformWithCanvasMock(direction);
+      expect(encoding).toEqual({
+        mimeType: 'image/png',
+        quality: undefined,
+      });
+      expect(result.type).toBe('image/png');
+      expect(transformedPixels).not.toEqual(originalPixels);
+      expect(restoredPixels).toEqual(originalPixels);
+    }
+  );
+
+  it('rejects a failed canvas export', async () => {
+    await expect(transformWithCanvasMock('encrypt', null)).rejects.toThrow('无法生成处理后的图片');
   });
 
-  it('does not add a quality setting to lossless PNG encoding', async () => {
-    await expect(transformWithCanvasMock('image/png')).resolves.toEqual({
-      mimeType: 'image/png',
-      quality: undefined,
-    });
+  it('rejects a non-PNG result', async () => {
+    await expect(transformWithCanvasMock('encrypt', 'image/webp')).rejects.toThrow(
+      '无法生成 PNG 格式的图片'
+    );
   });
 });

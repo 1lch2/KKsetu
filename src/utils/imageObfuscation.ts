@@ -1,8 +1,5 @@
 export type TransformDirection = 'encrypt' | 'decrypt';
 
-// Lossy encoding changes shuffled colors before the inverse mapping can restore them.
-const LOSSLESS_WEBP_QUALITY = 1;
-
 interface CurveBuffer {
   positions: Int32Array;
   nextIndex: number;
@@ -122,7 +119,7 @@ const loadImage = (src: string) => {
   });
 };
 
-const encodeCanvas = (canvas: HTMLCanvasElement, mimeType: string) => {
+const encodeCanvas = (canvas: HTMLCanvasElement) => {
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
@@ -130,24 +127,24 @@ const encodeCanvas = (canvas: HTMLCanvasElement, mimeType: string) => {
         return;
       }
 
-      if (blob.type !== mimeType) {
-        reject(new Error(`当前浏览器不支持保持 ${mimeType} 格式导出`));
+      if (blob.type !== 'image/png') {
+        reject(new Error('无法生成 PNG 格式的图片'));
         return;
       }
 
       resolve(blob);
-    }, mimeType, mimeType === 'image/webp' ? LOSSLESS_WEBP_QUALITY : undefined);
+    }, 'image/png');
   });
 };
 
 /**
  * Reorders an image's pixels along a Gilbert space-filling curve and encodes
- * the result with the requested MIME type.
+ * the result as lossless PNG. The inverse restores pixel positions, not color
+ * values discarded by lossy encoding, so both directions must avoid lossy output.
  */
 export const transformImage = async (
   src: string,
-  direction: TransformDirection,
-  mimeType: string
+  direction: TransformDirection
 ) => {
   const image = await loadImage(src);
   const width = image.naturalWidth;
@@ -182,5 +179,5 @@ export const transformImage = async (
   }
 
   context.putImageData(targetData, 0, 0);
-  return await encodeCanvas(canvas, mimeType);
+  return await encodeCanvas(canvas);
 };

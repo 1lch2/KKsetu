@@ -9,7 +9,6 @@ interface ObfuscationImage {
   name: string;
   originalUrl: string;
   displayedUrl: string;
-  mimeType: string;
 }
 
 const SUPPORTED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
@@ -69,21 +68,20 @@ const ImageObfuscationPage = () => {
     ownedUrls.current.forEach((url) => URL.revokeObjectURL(url));
     ownedUrls.current.clear();
 
-    const nextImages = supportedFiles.map(({ file, mimeType }) => {
+    const nextImages = supportedFiles.map(({ file }) => {
       const imageUrl = URL.createObjectURL(file);
       ownedUrls.current.add(imageUrl);
       return {
         name: file.name,
         originalUrl: imageUrl,
         displayedUrl: imageUrl,
-        mimeType,
       };
     });
 
     setImages(nextImages);
     setErrorMessage(
       unsupportedNames.length > 0
-        ? `已忽略无法保持原格式处理的文件：${unsupportedNames.join('、')}`
+        ? `已忽略不支持的文件格式：${unsupportedNames.join('、')}`
         : ''
     );
   }, []);
@@ -192,7 +190,7 @@ const ImageObfuscationPage = () => {
         await waitForPaint();
 
         try {
-          const result = await transformImage(image.displayedUrl, direction, image.mimeType);
+          const result = await transformImage(image.displayedUrl, direction);
           const resultUrl = URL.createObjectURL(result);
           generatedUrls.push(resultUrl);
           nextImages.push({ ...image, displayedUrl: resultUrl });
@@ -227,7 +225,7 @@ const ImageObfuscationPage = () => {
       <div className='image-obfuscation-intro'>
         <h2>图片混淆</h2>
         <p>
-          在浏览器本地批量混淆或还原图片，保留原始尺寸与格式，兼容小番茄混淆。
+          在浏览器本地批量混淆或还原图片，保留原始尺寸，统一导出 PNG 格式，兼容小番茄混淆。
         </p>
       </div>
 
