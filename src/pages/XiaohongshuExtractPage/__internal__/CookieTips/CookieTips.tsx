@@ -154,7 +154,7 @@ function CookieTips() {
           <p>
             点击“设置 Cookie”并粘贴保存。格式应为 <code>name=value; name2=value2</code>，
             不要添加 <code>Cookie:</code> 前缀，也不要使用 JSON 或 Netscape 格式。
-            保存后刷新本页，再重新粘贴分享链接尝试。
+            保存后会自动重试当前链接；也可以重新粘贴分享链接尝试。
           </p>
           <p className='xhs-cookie-tips-note'>
             Cookie 包含登录凭据，请勿分享给他人。获取 Cookie 不保证所有帖子都能提取。

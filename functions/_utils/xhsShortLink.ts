@@ -1,5 +1,4 @@
-const FALLBACK_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+import { DESKTOP_USER_AGENT } from './userAgent';
 
 const ALLOWED_HOSTS = new Set([
   'xhslink.com',
@@ -64,7 +63,7 @@ export const parseXhsShortLink = async (
       method: 'GET',
       redirect: 'manual',
       headers: {
-        'User-Agent': FALLBACK_UA,
+        'User-Agent': DESKTOP_USER_AGENT,
         Referer: 'https://www.xiaohongshu.com/',
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',

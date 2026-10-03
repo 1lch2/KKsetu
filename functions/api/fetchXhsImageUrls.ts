@@ -1,12 +1,10 @@
-import { convertMobileToPcUA } from '../_utils/convertUa';
-
-const FALLBACK_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+import { DESKTOP_USER_AGENT } from '../_utils/userAgent';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Max-Age': '86400',
+  'Cache-Control': 'no-store',
 };
 
 const UNDEFINED_PROPERTY_PATTERN = /:\s*undefined(?=\s*[,}])/g;
@@ -96,34 +94,72 @@ export const onRequestOptions: PagesFunction = async () => {
   });
 };
 
-export const onRequestPost: PagesFunction = async (context: EventContext<Env, any, any>) => {
-  const { request } = context;
-  const body = await request.json<{ postId: string; xsecToken: string; cookie?: string }>();
-  const { postId, xsecToken, cookie } = body;
+export const handleXhsImagesRequest = async (
+  request: Request,
+  fetcher: typeof fetch = fetch
+): Promise<Response> => {
+  const fail = (error: string, status: number): Response =>
+    new Response(JSON.stringify({ error }), { status, headers: CORS_HEADERS });
 
-  if (!postId || !xsecToken) {
-    return new Response(JSON.stringify({ error: 'Missing postId or xsecToken' }), {
-      status: 400,
-      headers: CORS_HEADERS,
-    });
+  if (request.headers.get('content-type')?.split(';')[0].trim() !== 'application/json') {
+    return fail('请使用 JSON 提交提取请求', 415);
+  }
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return fail('请求内容不是有效的 JSON', 400);
+  }
+  if (
+    !isRecord(body) ||
+    typeof body.postId !== 'string' ||
+    !/^[a-f0-9]{24}$/i.test(body.postId) ||
+    typeof body.xsecToken !== 'string' ||
+    !body.xsecToken.trim() ||
+    (body.cookie !== undefined &&
+      (typeof body.cookie !== 'string' || /[\r\n]/.test(body.cookie))) ||
+    (body.xsecSource !== undefined && typeof body.xsecSource !== 'string')
+  ) {
+    return fail('链接参数或 Cookie 无效，请重新复制完整分享链接和 Cookie', 400);
   }
 
-  const targetUrl = `https://www.xiaohongshu.com/explore/${postId}?xsec_token=${xsecToken}`;
-  // Remove Mobile User-agent field.
-  const userAgent = convertMobileToPcUA(request.headers.get('user-agent'));
+  const { postId, xsecToken, cookie, xsecSource } = body;
+  const targetUrl = new URL(`https://www.xiaohongshu.com/explore/${postId}`);
+  targetUrl.searchParams.set('xsec_token', xsecToken);
+  if (typeof xsecSource === 'string' && xsecSource) {
+    targetUrl.searchParams.set('xsec_source', xsecSource);
+  }
   try {
-    const response = await fetch(targetUrl, {
+    const response = await fetcher(targetUrl, {
+      redirect: 'manual',
       headers: {
-        'User-Agent': userAgent ?? FALLBACK_UA,
+        'User-Agent': DESKTOP_USER_AGENT,
         Referer: 'https://www.xiaohongshu.com/',
         Accept:
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-        Cookie: cookie || 'webId=anonymous',
-        'Cache-Control': 'public, max-age=86400',
+        Cookie: typeof cookie === 'string' && cookie.trim() ? cookie.trim() : 'webId=anonymous',
+        'Cache-Control': 'no-store',
       },
     });
 
-    if (!response.ok) throw new Error(`XHS returned ${response.status}`);
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      await response.body?.cancel();
+      const destination = location ? new URL(location, targetUrl) : null;
+      return fail(
+        destination?.pathname === '/login'
+          ? '小红书要求登录，请设置或更新网页 Cookie 后重试'
+          : '小红书返回了跳转页面，暂时无法读取帖子，请在小红书网页确认链接可访问',
+        404
+      );
+    }
+    if (!response.ok) {
+      await response.body?.cancel();
+      return fail(
+        `小红书拒绝了帖子请求（HTTP ${response.status}），请稍后重试或检查网页访问状态`,
+        500
+      );
+    }
 
     const html = await response.text();
 
@@ -132,20 +168,28 @@ export const onRequestPost: PagesFunction = async (context: EventContext<Env, an
     const match = html.match(stateRegex);
 
     if (!match) {
-      return new Response(JSON.stringify({ error: 'Initial state not found' }), {
-        status: 404,
-        headers: CORS_HEADERS,
-      });
+      return new Response(
+        JSON.stringify({ error: '小红书页面中未找到帖子数据，可能是验证页面或页面结构已变化' }),
+        {
+          status: 404,
+          headers: CORS_HEADERS,
+        }
+      );
     }
 
     const state = parseXhsInitialState(match[1]);
     const noteData = getNoteData(state, postId);
 
     if (!noteData) {
-      return new Response(JSON.stringify({ error: 'Image list not found' }), {
-        status: 404,
-        headers: CORS_HEADERS,
-      });
+      return new Response(
+        JSON.stringify({
+          error: '未获取到帖子图片，请确认帖子可访问、分享链接有效，或更新网页 Cookie',
+        }),
+        {
+          status: 404,
+          headers: CORS_HEADERS,
+        }
+      );
     }
 
     const originalImages = noteData.imageUrls.map(transformToOriginal);
@@ -154,16 +198,26 @@ export const onRequestPost: PagesFunction = async (context: EventContext<Env, an
       status: 200,
       headers: CORS_HEADERS,
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: CORS_HEADERS,
-    });
+  } catch (err: unknown) {
+    return new Response(
+      JSON.stringify({
+        error:
+          err instanceof SyntaxError
+            ? '小红书页面数据解析失败，页面结构可能已变化'
+            : '请求小红书失败，请检查网络后重试',
+      }),
+      {
+        status: 500,
+        headers: CORS_HEADERS,
+      }
+    );
   }
 };
 
+export const onRequestPost: PagesFunction = async ({ request }) => handleXhsImagesRequest(request);
+
 // Also export onRequest to handle all methods if needed
-export const onRequest: PagesFunction = async (context: EventContext<Env, any, any>) => {
+export const onRequest: PagesFunction = async (context) => {
   const { request } = context;
 
   if (request.method === 'OPTIONS') {

@@ -11,7 +11,11 @@ const XiaohongshuExtractPage = () => {
   const [shareContent, setShareContent] = useState('');
   const [cookieValue, setCookieValue] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { imageUrls = [], isLoading, error } = useGetXhsImages(shareContent);
+  const [cookieRevision, setCookieRevision] = useState(0);
+  const { imageUrls, isLoading, error, failedCount, retry } = useGetXhsImages(
+    shareContent,
+    cookieRevision
+  );
 
   useEffect(() => {
     setCookieValue(localStorage.getItem(COOKIE_KEY) || '');
@@ -20,11 +24,9 @@ const XiaohongshuExtractPage = () => {
   const handleSaveCookie = () => {
     localStorage.setItem(COOKIE_KEY, cookieValue);
     setIsDialogOpen(false);
+    setCookieRevision((revision) => revision + 1);
   };
 
-  if (error) {
-    console.log('Load image error:', error);
-  }
   return (
     <div className='xiaohongshu card'>
       <div className='xiaohongshu-input-wrapper'>
@@ -45,9 +47,17 @@ const XiaohongshuExtractPage = () => {
       <ImageContainer
         images={imageUrls}
         isLoading={isLoading}
-        errorMessage={error ? '加载失败，请设置小红书cookie后再次尝试' : undefined}
+        errorMessage={error?.message}
         imageActionProxyEndpoint='/api/getXhsSourceImage'
       />
+      {!isLoading && (error || failedCount > 0) && (
+        <div className='xhs-retry' role='status'>
+          {failedCount > 0 && !error && <span>部分图片加载失败，已显示成功加载的图片。</span>}
+          <button type='button' className='xhs-cookie-btn' onClick={() => void retry()}>
+            重新尝试
+          </button>
+        </div>
+      )}
       <CookieTips />
       <CookieDialog
         isOpen={isDialogOpen}

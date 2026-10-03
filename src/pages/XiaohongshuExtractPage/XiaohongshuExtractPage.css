@@ -3,6 +3,17 @@
   margin: 0 auto;
 }
 
+.xhs-retry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--secondary-color);
+  font-size: 13px;
+}
+
 .xiaohongshu-input-wrapper {
   margin-bottom: 20px;
 }

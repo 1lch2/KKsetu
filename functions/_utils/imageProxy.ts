@@ -1,7 +1,4 @@
-import { convertMobileToPcUA } from './convertUa';
-
-const FALLBACK_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+import { DESKTOP_USER_AGENT } from './userAgent';
 
 interface ImageProxyPolicy {
   isAllowedHostname: (hostname: string) => boolean;
@@ -47,12 +44,11 @@ export const handleImageProxyRequest = async (
   }
 
   try {
-    const userAgent = convertMobileToPcUA(request.headers.get('user-agent')) || FALLBACK_UA;
     const response = await fetcher(allowedImageUrl, {
       // Do not follow a trusted CDN redirect to a destination outside the route's allowlist.
       redirect: 'manual',
       headers: {
-        'User-Agent': userAgent,
+        'User-Agent': DESKTOP_USER_AGENT,
         Referer: policy.referer,
       },
     });
