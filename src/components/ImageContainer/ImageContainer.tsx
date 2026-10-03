@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import FullscreenOverlay from './__internal__/FullscreenOverlay';
+import FullscreenOverlay from './__internal__/FullscreenOverlay/FullscreenOverlay';
 import './ImageContainer.css';
 
 interface ImageContainerProps {

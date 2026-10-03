@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ImageContainer from '@components/ImageContainer/ImageContainer';
-import CookieDialog from './__internal__/CookieDialog';
+import CookieDialog from './__internal__/CookieDialog/CookieDialog';
+import CookieTips from './__internal__/CookieTips/CookieTips';
 import { useGetXhsImages } from '@/hooks/useGetXhsImages';
 import './XiaohongshuExtractPage.css';
 
@@ -47,6 +48,7 @@ const XiaohongshuExtractPage = () => {
         errorMessage={error ? '加载失败，请设置小红书cookie后再次尝试' : undefined}
         imageActionProxyEndpoint='/api/getXhsSourceImage'
       />
+      <CookieTips />
       <CookieDialog
         isOpen={isDialogOpen}
         cookieValue={cookieValue}
