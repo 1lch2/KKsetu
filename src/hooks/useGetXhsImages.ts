@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import heic2any from 'heic2any';
 
 import { BASE_URL } from '../utils/constants';
 
@@ -86,6 +85,7 @@ const fetchImage = async (imageUrl: string, signal?: AbortSignal): Promise<Blob>
   const contentType = response.headers.get('content-type') || '';
   if (contentType.includes('image/heic') || contentType.includes('image/heif')) {
     try {
+      const { default: heic2any } = await import('heic2any');
       const converted = await heic2any({ blob, toType: 'image/png' });
       const result = Array.isArray(converted) ? converted[0] : converted;
       if (!result) throw new Error('Empty conversion');

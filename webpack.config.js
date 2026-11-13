@@ -90,7 +90,8 @@ module.exports = {
         },
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
+          // 保留按需加载边界，避免异步依赖合并进首屏包。
+          name: false,
           chunks: 'all',
           priority: 10,
         },

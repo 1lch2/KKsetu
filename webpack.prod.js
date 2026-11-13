@@ -91,7 +91,8 @@ module.exports = {
         // 第三方库单独打包
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
+          // 保留按需加载边界，避免异步依赖合并进首屏包。
+          name: false,
           chunks: 'all',
         },
         // 公共组件单独打包
