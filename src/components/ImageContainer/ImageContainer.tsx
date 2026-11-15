@@ -9,6 +9,7 @@ interface ImageContainerProps {
   placeholder?: React.ReactNode;
   imageActionProxyEndpoint?: string;
   preferImageActionProxy?: boolean;
+  isActive?: boolean;
 }
 
 const ImageContainer = (props: ImageContainerProps) => {
@@ -55,28 +56,35 @@ const ImageContainer = (props: ImageContainerProps) => {
 
   return (
     <div className='card image-preview'>
-      <div className='img-container'>
+      <div className='img-container' aria-busy={props.isLoading || undefined}>
         {props.isLoading ? (
-          <div className='loading-state'>加载中...</div>
+          <div className='loading-state' role='progressbar' aria-label='图片加载中'>
+            加载中...
+          </div>
         ) : props.errorMessage ? (
-          <div className='loading-state'>{props.errorMessage}</div>
+          <div className='loading-state' role='alert'>
+            {props.errorMessage}
+          </div>
         ) : props.images.length === 0 ? (
-          props.placeholder ?? renderPlaceholder()
+          (props.placeholder ?? renderPlaceholder())
         ) : (
           props.images.map((imageSrc, index) => (
-            <img
+            <button
               key={index}
-              src={imageSrc}
-              alt={`Image ${index + 1}`}
-              id={`img-display-${index}`}
-              referrerPolicy='no-referrer'
+              type='button'
+              className='image-preview__button'
+              aria-label={`预览第 ${index + 1} 张图片`}
+              aria-haspopup='dialog'
               onClick={() => handleImageClick(index)}
-            />
+            >
+              <img src={imageSrc} alt={`第 ${index + 1} 张图片`} referrerPolicy='no-referrer' />
+            </button>
           ))
         )}
       </div>
       {overlayIndex !== null && props.images[overlayIndex] && (
         <FullscreenOverlay
+          isOpen={props.isActive !== false && !props.isLoading && !props.errorMessage}
           imageSrc={props.images[overlayIndex]}
           currentIndex={overlayIndex}
           totalImages={props.images.length}

@@ -48,6 +48,10 @@
   font-size: 13px;
 }
 
+.skland-validation-error:empty {
+  margin-top: 0;
+}
+
 @media (max-width: 600px) {
   .skland-input-wrapper label {
     min-height: 44px;

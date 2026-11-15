@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 
+import ModalDialog from '@components/ModalDialog/ModalDialog';
 import { BASE_URL } from '@utils/constants';
 
 type ImageAction = 'copy' | 'download';
@@ -13,14 +14,22 @@ const MENU_MARGIN = 8;
 const MENU_WIDTH = 180;
 const MENU_HEIGHT = 120;
 
+// This template contains no image URL or other untrusted HTML. Keep the blank
+// document for no-Referer loading; assign the image through its DOM property.
+const IFRAME_SRC_DOC = `<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><title>图片预览</title><style>
+  body { margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+  img { max-width:100%; max-height:100vh; object-fit:contain; }
+</style></head><body>
+  <img referrerpolicy="no-referrer" alt="预览图片" tabindex="0" />
+</body></html>`;
+
 // CDN response headers and URL extensions are not reliable enough to distinguish
 // JPEG/JFIF, so inspect the shared JPEG start-of-image signature instead.
 const isJpeg = async (blob: Blob): Promise<boolean> => {
   const bytes = new Uint8Array(await blob.slice(0, 3).arrayBuffer());
 
-  return (
-    bytes.length === 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
-  );
+  return bytes.length === 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
 };
 
 const getFilenameFromUrl = (imageSrc: string): string => {
@@ -56,7 +65,8 @@ const getDownloadFilename = (imageSrc: string, jpeg: boolean): string => {
 
   const extensionIndex = originalFilename.lastIndexOf('.');
   // Preserve the URL-provided basename and normalize only its final extension.
-  const basename = extensionIndex > 0 ? originalFilename.slice(0, extensionIndex) : originalFilename;
+  const basename =
+    extensionIndex > 0 ? originalFilename.slice(0, extensionIndex) : originalFilename;
   return `${basename}.jpg`;
 };
 
@@ -146,6 +156,7 @@ const convertImageToPng = async (blob: Blob): Promise<Blob> => {
 };
 
 interface FullscreenOverlayProps {
+  isOpen: boolean;
   imageSrc: string;
   currentIndex: number;
   totalImages: number;
@@ -157,6 +168,7 @@ interface FullscreenOverlayProps {
 }
 
 const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
+  isOpen,
   imageSrc,
   currentIndex,
   totalImages,
@@ -167,47 +179,78 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
   preferImageActionProxy,
 }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [contextMenuPosition, setContextMenuPosition] = useState<ContextMenuPosition | null>(
-    null
-  );
+  const iframeDocumentRef = useRef<Document | null>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const actionsButtonRef = useRef<HTMLButtonElement>(null);
+  const pressedBackdrop = useRef(false);
+  const actionsId = useId();
+  const [contextMenuPosition, setContextMenuPosition] = useState<ContextMenuPosition | null>(null);
   const [activeAction, setActiveAction] = useState<ImageAction | null>(null);
   const [actionError, setActionError] = useState('');
 
   const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      } else if (event.key === 'ArrowLeft' && currentIndex > 0) {
+    (event: KeyboardEvent | React.KeyboardEvent<HTMLDialogElement>) => {
+      if (!isOpen || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key === 'ArrowLeft' && currentIndex > 0) {
+        event.preventDefault();
+        setContextMenuPosition(null);
         onPrevious();
       } else if (event.key === 'ArrowRight' && currentIndex < totalImages - 1) {
+        event.preventDefault();
+        setContextMenuPosition(null);
         onNext();
       }
     },
-    [currentIndex, onClose, onNext, onPrevious, totalImages]
+    [currentIndex, isOpen, onNext, onPrevious, totalImages]
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    const panel = actionsRef.current;
+    if (!contextMenuPosition || !panel) return;
+    // Native popovers provide light dismiss and Esc. Older browsers retain the
+    // same button group, with the dialog's pointer/cancel handlers as fallback.
+    if ('popover' in HTMLElement.prototype) panel.showPopover();
+    panel.querySelector('button')?.focus();
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      if ('popover' in HTMLElement.prototype) panel.hidePopover();
     };
-  }, [handleKeyDown]);
+  }, [contextMenuPosition]);
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      setContextMenuPosition(null);
-      onClose();
-    }
+  const closeActions = () => {
+    setContextMenuPosition(null);
+    actionsButtonRef.current?.focus();
   };
 
   // The iframe is a separate document, so pointer events inside it never bubble
   // to React. Attach backdrop and context-menu handlers directly once loaded.
   const handleIframeLoad = useCallback(() => {
+    if (!isOpen) return;
     const doc = iframeRef.current?.contentDocument;
     const image = doc?.querySelector('img');
     if (!doc || !image) {
       return;
     }
+    iframeDocumentRef.current = doc;
+
+    // Assign as a URL, never interpolate into HTML. Quotes and tags remain data.
+    if (image.getAttribute('src') !== imageSrc) image.src = imageSrc;
+    image.alt = `第 ${currentIndex + 1} 张图片，共 ${totalImages} 张`;
+    doc.onkeydown = (event) => {
+      // A close request in this separate document does not reach the parent
+      // modal. Forward only iframe Esc through the dialog's cancel/close path.
+      if (event.key === 'Escape') {
+        const dialog = iframeRef.current?.closest('dialog');
+        if (!dialog?.open) return;
+        event.preventDefault();
+        if (typeof dialog.requestClose === 'function') {
+          dialog.requestClose();
+        } else if (dialog.dispatchEvent(new Event('cancel', { cancelable: true }))) {
+          dialog.close();
+        }
+        return;
+      }
+      handleKeyDown(event);
+    };
 
     doc.body.onclick = (event) => {
       setContextMenuPosition(null);
@@ -232,17 +275,30 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
       // contextmenu coordinates belong to the iframe viewport; translate them
       // into the parent viewport and keep the custom menu within the screen.
       setContextMenuPosition({
-        x: Math.min(
-          Math.max(MENU_MARGIN, iframeBounds.left + event.clientX),
-          window.innerWidth - MENU_WIDTH - MENU_MARGIN
+        x: Math.max(
+          MENU_MARGIN,
+          Math.min(iframeBounds.left + event.clientX, window.innerWidth - MENU_WIDTH - MENU_MARGIN)
         ),
-        y: Math.min(
-          Math.max(MENU_MARGIN, iframeBounds.top + event.clientY),
-          window.innerHeight - MENU_HEIGHT - MENU_MARGIN
+        y: Math.max(
+          MENU_MARGIN,
+          Math.min(iframeBounds.top + event.clientY, window.innerHeight - MENU_HEIGHT - MENU_MARGIN)
         ),
       });
     };
-  }, [onClose]);
+  }, [currentIndex, handleKeyDown, imageSrc, isOpen, onClose, totalImages]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    handleIframeLoad();
+    return () => {
+      const doc = iframeDocumentRef.current;
+      if (!doc) return;
+      doc.onkeydown = null;
+      doc.body.onclick = null;
+      doc.body.oncontextmenu = null;
+      iframeDocumentRef.current = null;
+    };
+  }, [handleIframeLoad, isOpen]);
 
   const handleImageAction = async (action: ImageAction) => {
     if (activeAction) {
@@ -279,7 +335,7 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
         ]);
       }
 
-      setContextMenuPosition(null);
+      closeActions();
     } catch (error) {
       console.error(`Failed to ${action} image`, error);
       setActionError(action === 'copy' ? '复制图片失败，请检查浏览器权限' : '保存图片失败');
@@ -288,24 +344,45 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
     }
   };
 
-  // Keep the image in an about:blank srcdoc so its request does not carry the
-  // current page as Referer, avoiding 403 responses from some image servers.
-  const iframeSrcDoc = useMemo(
-    () =>
-      `<!DOCTYPE html>
-<html><head><style>
-  body { margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; }
-  img { max-width:100%; max-height:100vh; object-fit:contain; }
-</style></head><body>
-  <img src="${imageSrc}" referrerpolicy="no-referrer" alt="Full size image" />
-</body></html>`,
-    [imageSrc]
-  );
-
   return (
-    <div className='fullscreen-overlay' onClick={handleBackdropClick}>
-      <button className='fullscreen-overlay__close' onClick={onClose} aria-label='关闭'>
+    <ModalDialog
+      className='fullscreen-overlay'
+      isOpen={isOpen}
+      onClose={onClose}
+      aria-label='图片预览'
+      onKeyDown={handleKeyDown}
+      onCancel={(event) => {
+        if (contextMenuPosition) {
+          event.preventDefault();
+          closeActions();
+        }
+      }}
+      onPointerDown={(event) => {
+        pressedBackdrop.current = event.target === event.currentTarget;
+      }}
+      onPointerUp={(event) => {
+        if (pressedBackdrop.current && event.target === event.currentTarget) onClose();
+        pressedBackdrop.current = false;
+      }}
+      onClick={(event) => {
+        const target = event.target;
+        if (
+          target instanceof Element &&
+          !target.closest('.fullscreen-overlay__context-menu, .fullscreen-overlay__actions-toggle')
+        ) {
+          setContextMenuPosition(null);
+        }
+      }}
+    >
+      <button
+        type='button'
+        className='fullscreen-overlay__close'
+        autoFocus
+        onClick={onClose}
+        aria-label='关闭'
+      >
         <svg
+          aria-hidden='true'
           xmlns='http://www.w3.org/2000/svg'
           fill='none'
           viewBox='0 0 24 24'
@@ -315,13 +392,36 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
           <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
         </svg>
       </button>
+      <button
+        ref={actionsButtonRef}
+        type='button'
+        className='fullscreen-overlay__actions-toggle'
+        aria-expanded={contextMenuPosition !== null}
+        aria-controls={actionsId}
+        onClick={(event) => {
+          if (contextMenuPosition) {
+            closeActions();
+            return;
+          }
+          const bounds = event.currentTarget.getBoundingClientRect();
+          setActionError('');
+          setContextMenuPosition({ x: bounds.left, y: bounds.bottom + MENU_MARGIN });
+        }}
+      >
+        图片操作
+      </button>
       {currentIndex > 0 && (
         <button
+          type='button'
           className='fullscreen-overlay__nav fullscreen-overlay__nav--previous'
-          onClick={onPrevious}
+          onClick={() => {
+            setContextMenuPosition(null);
+            onPrevious();
+          }}
           aria-label='上一张'
         >
           <svg
+            aria-hidden='true'
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
             viewBox='0 0 24 24'
@@ -334,11 +434,16 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
       )}
       {currentIndex < totalImages - 1 && (
         <button
+          type='button'
           className='fullscreen-overlay__nav fullscreen-overlay__nav--next'
-          onClick={onNext}
+          onClick={() => {
+            setContextMenuPosition(null);
+            onNext();
+          }}
           aria-label='下一张'
         >
           <svg
+            aria-hidden='true'
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
             viewBox='0 0 24 24'
@@ -352,20 +457,30 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
       <iframe
         ref={iframeRef}
         className='fullscreen-overlay__iframe'
-        srcDoc={iframeSrcDoc}
+        srcDoc={IFRAME_SRC_DOC}
+        sandbox='allow-same-origin'
         onLoad={handleIframeLoad}
-        title='Image viewer'
+        title='图片预览'
       />
       {contextMenuPosition && (
         <div
+          ref={actionsRef}
+          id={actionsId}
+          popover='auto'
           className='fullscreen-overlay__context-menu'
-          style={{ left: contextMenuPosition.x, top: contextMenuPosition.y }}
-          role='menu'
+          style={{
+            left: contextMenuPosition.x,
+            top: contextMenuPosition.y,
+            maxHeight: `calc(100dvh - ${contextMenuPosition.y + MENU_MARGIN}px)`,
+          }}
+          role='group'
           aria-label='图片操作'
+          onToggle={(event) => {
+            if (event.newState === 'closed') setContextMenuPosition(null);
+          }}
         >
           <button
             type='button'
-            role='menuitem'
             disabled={activeAction !== null}
             onClick={() => void handleImageAction('copy')}
           >
@@ -373,7 +488,6 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
           </button>
           <button
             type='button'
-            role='menuitem'
             disabled={activeAction !== null}
             onClick={() => void handleImageAction('download')}
           >
@@ -386,7 +500,7 @@ const FullscreenOverlay: React.FC<FullscreenOverlayProps> = ({
           )}
         </div>
       )}
-    </div>
+    </ModalDialog>
   );
 };
 

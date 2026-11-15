@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import ImageContainer from '@components/ImageContainer/ImageContainer';
 import CookieDialog from './__internal__/CookieDialog/CookieDialog';
 import CookieTips from './__internal__/CookieTips/CookieTips';
@@ -8,6 +9,8 @@ import './XiaohongshuExtractPage.css';
 const COOKIE_KEY = 'xhs_cookie';
 
 const XiaohongshuExtractPage = () => {
+  const { pathname } = useLocation();
+  const isActive = pathname === '/';
   const [shareContent, setShareContent] = useState('');
   const [cookieValue, setCookieValue] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -32,19 +35,28 @@ const XiaohongshuExtractPage = () => {
       <div className='xiaohongshu-input-wrapper'>
         <div className='xiaohongshu-input-label'>
           <label htmlFor='xiaohongshu-link'>小红书分享链接</label>
-          <button className='xhs-cookie-btn' onClick={() => setIsDialogOpen(true)}>
+          <button
+            type='button'
+            className='xhs-cookie-btn'
+            aria-haspopup='dialog'
+            onClick={() => setIsDialogOpen(true)}
+          >
             设置 Cookie
           </button>
         </div>
         <input
           id='xiaohongshu-link'
           type='text'
+          autoCapitalize='none'
+          autoCorrect='off'
+          spellCheck={false}
           value={shareContent}
           onChange={(e) => setShareContent(e.target.value)}
           placeholder='粘贴小红书分享内容或链接...'
         />
       </div>
       <ImageContainer
+        isActive={isActive}
         images={imageUrls}
         isLoading={isLoading}
         errorMessage={error?.message}
@@ -60,7 +72,7 @@ const XiaohongshuExtractPage = () => {
       )}
       <CookieTips />
       <CookieDialog
-        isOpen={isDialogOpen}
+        isOpen={isDialogOpen && isActive}
         cookieValue={cookieValue}
         onCookieChange={setCookieValue}
         onClose={() => setIsDialogOpen(false)}

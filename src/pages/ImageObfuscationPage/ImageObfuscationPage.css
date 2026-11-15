@@ -134,6 +134,10 @@
   font-size: 12px;
 }
 
+.image-obfuscation-upload-button {
+  margin-bottom: 12px;
+}
+
 .image-obfuscation-file-input {
   display: none;
 }

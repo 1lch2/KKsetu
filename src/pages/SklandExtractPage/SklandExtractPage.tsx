@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import ImageContainer from '@components/ImageContainer/ImageContainer';
 import { parseSklandArticleId, useGetSklandImages } from '@hooks/useGetSklandImages';
@@ -6,6 +7,7 @@ import { parseSklandArticleId, useGetSklandImages } from '@hooks/useGetSklandIma
 import './SklandExtractPage.css';
 
 const SklandExtractPage = () => {
+  const { pathname } = useLocation();
   const [input, setInput] = useState('');
   const [articleId, setArticleId] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string>();
@@ -17,11 +19,6 @@ const SklandExtractPage = () => {
 
     setInput(value);
     setArticleId(parsedArticleId);
-
-    if (!parsedArticleId) {
-      setValidationError(value.trim() ? '请输入受支持的森空岛帖子链接' : undefined);
-      return;
-    }
 
     setValidationError(undefined);
   };
@@ -39,14 +36,29 @@ const SklandExtractPage = () => {
         <input
           id='skland-link'
           type='text'
+          autoCapitalize='none'
+          autoCorrect='off'
+          spellCheck={false}
           value={input}
           onChange={handleInputChange}
+          onBlur={() => {
+            setValidationError(
+              input.trim() && !parseSklandArticleId(input.trim())
+                ? '请输入受支持的森空岛帖子链接'
+                : undefined
+            );
+          }}
+          aria-invalid={Boolean(validationError) || undefined}
+          aria-describedby={validationError ? 'skland-link-error' : undefined}
           placeholder='https://www.skland.com/article?id=...'
           maxLength={2048}
         />
-        {validationError ? <p className='skland-validation-error'>{validationError}</p> : null}
+        <p id='skland-link-error' className='skland-validation-error' aria-live='polite'>
+          {validationError}
+        </p>
       </div>
       <ImageContainer
+        isActive={pathname === '/skland'}
         images={imageUrls}
         isLoading={isLoading}
         errorMessage={errorMessage}

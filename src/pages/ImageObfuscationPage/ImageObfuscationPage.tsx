@@ -142,19 +142,12 @@ const ImageObfuscationPage = () => {
     }
   };
 
-  const handleUploadKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!isProcessing && (event.key === 'Enter' || event.key === ' ')) {
-      event.preventDefault();
-      inputRef.current?.click();
-    }
-  };
-
   const handleUploadAreaClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const target = event.target;
     if (
       isProcessing ||
       !(target instanceof Element) ||
-      target.closest('.img-container img, .fullscreen-overlay')
+      target.closest('button, dialog')
     ) {
       return;
     }
@@ -271,12 +264,7 @@ const ImageObfuscationPage = () => {
         className={`image-obfuscation-upload ${isDragging ? 'is-dragging' : ''} ${
           isProcessing ? 'is-disabled' : ''
         }`}
-        role='button'
-        tabIndex={isProcessing ? -1 : 0}
-        aria-label='点击、拖拽或粘贴上传多张图片'
-        aria-disabled={isProcessing}
         onClick={handleUploadAreaClick}
-        onKeyDown={handleUploadKeyDown}
         onDragEnter={(event) => {
           event.preventDefault();
           if (!isProcessing) setIsDragging(true);
@@ -290,7 +278,16 @@ const ImageObfuscationPage = () => {
             已选择 {images.length} 张图片 · 点击空白处、拖入或粘贴图片可替换
           </p>
         )}
+        <button
+          className='obfuscation-button image-obfuscation-upload-button'
+          type='button'
+          disabled={isProcessing}
+          onClick={() => inputRef.current?.click()}
+        >
+          {images.length > 0 ? '替换图片' : '选择图片'}
+        </button>
         <ImageContainer
+          isActive={isActive}
           images={images.map((image) => image.displayedUrl)}
           placeholder={
             <div className='image-obfuscation-placeholder'>
